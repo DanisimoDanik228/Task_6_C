@@ -47,6 +47,7 @@
             {
                 delete previewStore[clientConnectionId];
                 drawCanvas(message);
+                drawPreviewCanvas();
             }
         }
         else if(message.type == 'square')
@@ -60,6 +61,7 @@
             {
                 delete previewStore[clientConnectionId];
                 drawCanvas(message);
+                drawPreviewCanvas();
             }
         };
 
@@ -82,43 +84,40 @@
     };
 
     previewCanvas.onmouseup = (e) => {
+        mouseup(e.offsetX,e.offsetY);
+    };
+
+   function mouseup(X, Y) {
+        if (!isDrawing)
+        {
+            return;
+        }
         isDrawing = false;
 
         if (currentMode === 'pen') {
             const data = {
                 point1: { x: lastX, y: lastY },
-                point2: { x: e.offsetX, y: e.offsetY },
+                point2: { x: X, y: Y},
                 type: 'line',
                 isPreview: false
             };
-
-            lastX = e.offsetX;
-            lastY = e.offsetY;
-
+            lastX = X;
+            lastY = Y;
             sendData(data);
         }
-        else if (currentMode == 'line')
-        {
+        else {
             const data = {
                 point1: { x: lastX, y: lastY },
-                point2: { x: e.offsetX, y: e.offsetY },
+                point2: { x: X, y: Y},
                 type: currentMode,
                 isPreview: false
             };
-
             sendData(data);
         }
-        else if(currentMode == 'square')
-        {
-            const data = {
-                point1: { x: lastX, y: lastY },
-                point2: { x: e.offsetX, y: e.offsetY },
-                type: currentMode,
-                isPreview: false
-            };
+    }
 
-            sendData(data);
-        }
+    previewCanvas.onmouseleave = (e) => {
+        mouseup(e.offsetX,e.offsetY);
     };
 
     previewCanvas.onmousemove = (e) => {
