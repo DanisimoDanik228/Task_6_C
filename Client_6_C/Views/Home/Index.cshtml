@@ -1,6 +1,12 @@
 ﻿@{
     Layout = null;
 }
+
+<canvas id="canvas" width="800" height="800" style="border: 1px solid black"></canvas>
+<button onclick="setMode('line')">line</button>
+<button onclick="setMode('square')">square</button>
+
+
 <input type="number" id="posX" value="10">
 <input type="number" id="posY" value="10">
 <input type="text" id="type">
@@ -11,32 +17,87 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
 <script>
     const log = document.getElementById('log');
+    const canvas = document.getElementById('canvas');
+
+    let currentMode = 'line';
+    let isDrawing = false;
+    let startX = 0;
+    let startY = 0;
+    
+    
+    // SignalR
 
     const connection = new signalR.HubConnectionBuilder()
         .withUrl("/hub")
         .build();
 
-    connection.on("Update", function (message) {
-        log.innerHTML += "<div>" + message + "</div>";
+    connection.on("Update", function (typeReceive, message) {
+        log.innerHTML += "<div>" + typeReceive + " " + message + "</div>";
+        drawCanvas(message);
     });
 
-    function sendData() {
-        const data = {
-            point1: { 
-                x: parseInt(document.getElementById('posX').value), 
-                y: parseInt(document.getElementById('posY').value) 
-            },
-            point2: { 
-                x: 100, 
-                y: 100 
-            },
-            type: document.getElementById('type').value
-        };
-
+    function sendData(data) {
         connection.invoke("Draw", data);
     }
 
     connection.start().then(() => {
         connection.invoke("History");
     });
+
+    // SignalR
+    // Canvas
+
+    canvas.onmousedown = (e) => {
+        isDrawing = true;
+        startX = e.offsetX;
+        startY = e.offsetY;
+    };
+
+    canvas.onmouseup = (e) => {
+        if (!isDrawing) 
+        {
+            return;
+        }
+        isDrawing = false;
+
+        const data = {
+            point1: { x: startX, y: startY },
+            point2: { x: e.offsetX, y: e.offsetY },
+            type: currentMode
+        };
+
+        sendData(data);
+    };
+
+    function setMode(mode) {
+        currentMode = mode;
+    }
+
+    function drawCanvas(data) {
+        console.log(data);
+
+        const ctx = canvas.getContext('2d');
+
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'black';
+
+        if (data.type === 'line')
+        {
+
+            ctx.moveTo(data.point1.x, data.point1.y);
+            ctx.lineTo(data.point2.x, data.point2.y);
+        } 
+        else 
+        {
+            const width = data.point2.x - data.point1.x;
+            const height = data.point2.y - data.point1.y;
+
+            ctx.strokeRect(data.point1.x, data.point1.y, width, height);
+        }
+        ctx.stroke();
+    }
+
+    // Canvas
+
 </script>

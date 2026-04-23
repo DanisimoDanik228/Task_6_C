@@ -36,9 +36,9 @@ namespace Task_6_C.Services
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            _consoleConnection.On<Model>("DrawToClient", async (Model data) =>
+            _consoleConnection.On<Model>("DrawToClient", async (data) =>
             {
-                await _internalHub.Clients.All.SendAsync("Update", "Draw    " + data.ToString());
+                await _internalHub.Clients.All.SendAsync("Update", "Draw", data);
             });
 
             _consoleConnection.On<List<Model>,string>("HistoryToClient", async (data, connectionId) =>
@@ -46,7 +46,7 @@ namespace Task_6_C.Services
                 // MUST BE ONLY ONCE SEND
                 foreach (var item in data)
                 {
-                    await _internalHub.Clients.Client(connectionId).SendAsync("Update", "History " + item);
+                    await _internalHub.Clients.Client(connectionId).SendAsync("Update", "History", item);
                 }
             });
 
