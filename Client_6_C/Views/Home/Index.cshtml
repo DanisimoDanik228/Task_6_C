@@ -1,21 +1,34 @@
 ﻿@{
     Layout = null;
 }
-<div style="position: relative; width: 800px; height: 800px;">
-    <canvas id="canvas" width="800" height="800"
-            style="position: absolute; left: 0; top: 0; z-index: 1; border: 1px solid black"></canvas>
-    <canvas id="previewCanvas" width="800" height="800"
-            style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
+<div id="chooseGroup">
+    <h1>Choose group</h1>
+    <input type="text" id="groupIdInput" placeholder="group id">
+    <br>
+    <button id="joinBtn" onclick="joinGroup()">Create or Join</button>
 </div>
-<button onclick="setMode('line')">line</button>
-<button onclick="setMode('square')">square</button>
-<button onclick="setMode('pen')">pen</button>
+<div id="groupList">
+
+</div>
+
+<div id="drawingPlace" style="display: none">
+    <h2 id="showGroupId">Group: </h2>
+    <div style="position: relative; width: 800px; height: 800px;">
+        <canvas id="canvas" width="800" height="800"
+                style="position: absolute; left: 0; top: 0; z-index: 1; border: 1px solid black"></canvas>
+        <canvas id="previewCanvas" width="800" height="800"
+                style="position: absolute; left: 0; top: 0; z-index: 2"></canvas>
+    </div>
+    <button onclick="setMode('line')">line</button>
+    <button onclick="setMode('square')">square</button>
+    <button onclick="setMode('pen')">pen</button>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
 <script>
-    const log = document.getElementById('log');
     const canvas = document.getElementById('canvas');
     const previewCanvas = document.getElementById('previewCanvas');
+    const groupList = document.getElementById("groupList");
     const ctx = canvas.getContext('2d');
     const previousCtx = previewCanvas.getContext('2d');
 
@@ -24,19 +37,37 @@
     let lastX = 0;
     let lastY = 0;
     let previewStore = {};
-    
-    // SignalR
+    let currentGroup = "";
+        
 
     const connection = new signalR.HubConnectionBuilder()
         .withUrl("/hub")
         .build();
 
+    function myConnectedId() {
+        return connection.connectionId;
+    }
+
+    function joinGroup() {
+        const groupId = document.getElementById('groupIdInput').value;
+        if (!groupId) {
+            return;
+        }
+        currentGroup = groupId;
+            
+        document.getElementById('chooseGroup').style.display = 'none';
+        document.getElementById('drawingPlace').style.display = 'block';
+        document.getElementById('showGroupId').innerText = "GroupId: " + currentGroup;
+
+        connection.invoke("JoinGroup", myConnectedId() ,currentGroup);
+    }
+
     connection.on("Update", function (typeReceive, message, clientConnectionId) {
         if (message.type === 'pen') 
         {
-            drawCanvas(message);
+            drawCanvas(ctx,[message]);
         }
-        else if (message.type == 'line')
+        else if (message.type == 'line' || message.type == 'square')
         {
             if(message.isPreview)
             {
@@ -46,36 +77,51 @@
             else
             {
                 delete previewStore[clientConnectionId];
-                drawCanvas(message);
                 drawPreviewCanvas();
+                drawCanvas(ctx,[message]);
             }
         }
-        else if(message.type == 'square')
-        {
-            if(message.isPreview)
-            {
-                previewStore[clientConnectionId] = message;
-                drawPreviewCanvas();
-            }
-            else
-            {
-                delete previewStore[clientConnectionId];
-                drawCanvas(message);
-                drawPreviewCanvas();
-            }
-        };
+    });
 
+    connection.on("Groups", function (data, myConnectedId) {
+         groupList.innerHTML = ""; 
+
+        for (let id in data) {
+            const container = document.createElement("div");
+            container.style.margin = "10px";
+
+            const canvas = document.createElement("canvas");
+            canvas.width = 100;
+            canvas.height = 100;
+            canvas.style.border = "1px solid gray";
+            canvas.style.display = "block";
+
+            const label = document.createElement("div");
+            label.innerText = id; 
+
+            container.appendChild(canvas);
+            container.appendChild(label);
+            groupList.appendChild(container);
+
+            const cCtx = canvas.getContext('2d');
+            cCtx.scale(0.125, 0.125);
+            drawCanvas(cCtx, data[id]);
+        }
     });
 
     function sendData(data) {
-        connection.invoke("Draw", data, connection.connectionId);
+        connection.invoke("Draw", data, myConnectedId(), currentGroup);
     }
 
-    connection.start().then(() => {
-        connection.invoke("History",connection.connectionId);
+    function AvaliableGroups() {
+        connection.invoke("AvaliableGroups",myConnectedId());
+    }
+
+    connection.start().then(() =>{
+        AvaliableGroups();
     });
 
-    // Canvas
+    //-----------------------------------------------------
 
     previewCanvas.onmousedown = (e) => {
         isDrawing = true;
@@ -87,7 +133,7 @@
         mouseup(e.offsetX,e.offsetY);
     };
 
-   function mouseup(X, Y) {
+    function mouseup(X, Y) {
         if (!isDrawing)
         {
             return;
@@ -139,8 +185,8 @@
 
             sendData(data);
         } 
-        else if (currentMode == 'line')
-        {    
+        else if (currentMode == 'line' || currentMode == 'square')
+        {
             const data = {
                 point1: { x: lastX, y: lastY },
                 point2: { x: e.offsetX, y: e.offsetY },
@@ -150,58 +196,51 @@
 
             sendData(data);
         }
-        else if(currentMode == 'square')
-        {
-            const data = {
-                point1: { x: lastX, y: lastY },
-                point2: { x: e.offsetX, y: e.offsetY },
-                type: currentMode,
-                isPreview: true 
-            };
-
-            sendData(data);
-        }
-    }
+    };
 
     function setMode(mode) {
         currentMode = mode;
     }
 
-    function drawCanvas(data) {
-        ctx.beginPath();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = 'black';
+    function drawCanvas(targetCtx, data) {
+        targetCtx.beginPath();
+        targetCtx.lineWidth = 2;
+        targetCtx.strokeStyle = 'black';
 
-        if (data.type === 'line')
+        for(let el of data)
         {
-            ctx.moveTo(data.point1.x, data.point1.y);
-            ctx.lineTo(data.point2.x, data.point2.y);
-        } 
-        else 
-        {
-            const width = data.point2.x - data.point1.x;
-            const height = data.point2.y - data.point1.y;
+            if (el.type === 'line') 
+            {
+                targetCtx.moveTo(el.point1.x, el.point1.y);
+                targetCtx.lineTo(el.point2.x, el.point2.y);
+            } 
+            else if (el.type === 'square')
+            {
+                const width = el.point2.x - el.point1.x;
+                const height = el.point2.y - el.point1.y;
 
-            ctx.strokeRect(data.point1.x, data.point1.y, width, height);
+                targetCtx.strokeRect(el.point1.x, el.point1.y, width, height);
+            }
         }
-        ctx.stroke();
+        targetCtx.stroke();
     }
 
     function drawPreviewCanvas() {
         previousCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-        
+            
         for (let id in previewStore) {
             const shape = previewStore[id];
-            
+
             previousCtx.beginPath();
             previousCtx.lineWidth = 2;
+            previousCtx.strokeStyle = 'rgba(0,0,0,0.3)'; 
             previousCtx.strokeStyle = 'black';
 
-            if (shape.type === 'line') 
+            if (shape.type === 'line')
             {
                 previousCtx.moveTo(shape.point1.x, shape.point1.y);
                 previousCtx.lineTo(shape.point2.x, shape.point2.y);
-            } else if (shape.type === 'square') 
+            } else if (shape.type === 'square')
             {
                 const width = shape.point2.x - shape.point1.x;
                 const height = shape.point2.y - shape.point1.y;
@@ -210,7 +249,4 @@
             previousCtx.stroke();
         }
     }
-
-    // Canvas
-
 </script>

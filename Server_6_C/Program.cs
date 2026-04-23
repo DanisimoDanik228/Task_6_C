@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using System.Drawing;
+using System.Text.RegularExpressions;
 
 namespace Server_6_C
 {
@@ -34,31 +35,52 @@ namespace Server_6_C
 
     public class DrawHub : Hub
     {
-        private static readonly List<Model> _history = new List<Model>();
+        private static readonly Dictionary<string, List<Model>> _groupHistory = new();
 
-        public async Task DrawToServer(Model data, string connectionId)
+        public async Task AvaliableGroupsToServer(string connectionId)
         {
-            if (!data.isPreview)
-            {
-                lock (_history)
-                {
-                    _history.Add(data);
-                }
-            }
-
-            await Clients.All.SendAsync("DrawToClient", data, connectionId);
+            await Clients.Caller.SendAsync("AvaliableGroupsToClient", _groupHistory, connectionId);
         }
 
-        public async Task HistoryToServer(string connectionId)
+        public async Task JoinGroupToServer(string connectionId, string groupId)
+        {
+            await Groups.AddToGroupAsync(connectionId, groupId);
+        }
+
+        public async Task DrawToServer(Model data, string connectionId, string groupId)
+        {
+            lock (_groupHistory)
+            {
+                if (!_groupHistory.ContainsKey(groupId))
+                { 
+                    _groupHistory[groupId] = new();
+                }
+
+                if (!data.isPreview)
+                {
+                    _groupHistory[groupId].Add(data);
+                }
+
+            }
+
+            await Clients.All.SendAsync("DrawToClient", data, connectionId, groupId);
+        }
+
+        public async Task HistoryToServer(string connectionId, string groupId)
         {
             List<Model> data;
 
-            lock (_history)
+            lock (_groupHistory)
             {
-                data = _history.ToList();
+                if (!_groupHistory.ContainsKey(groupId))
+                {
+                    _groupHistory[groupId] = new();
+                }
+
+                data = _groupHistory[groupId].ToList();
             }
 
-            await Clients.Caller.SendAsync("HistoryToClient", data, connectionId);
+            await Clients.Caller.SendAsync("HistoryToClient", data, connectionId, groupId);
         }
     }
 }

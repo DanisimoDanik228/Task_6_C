@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.AspNetCore.SignalR.Client;
 using System.Drawing;
+using System.Text.RegularExpressions;
 using Task_6_C.Controllers;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -24,29 +25,44 @@ namespace Task_6_C.Services
                 .Build();
         }
 
-        public async Task DrawToServer(Model data, string connectionId)
+        public async Task AvaliableGroupsToServer(string myConnectionId)
         {
-            await _consoleConnection.InvokeAsync("DrawToServer", data, connectionId);
+            await _consoleConnection.InvokeAsync("AvaliableGroupsToServer", myConnectionId);
         }
 
-        public async Task HistoryToServer(string connectionId)
+        public async Task JoinGroupToServer(string myConnectionId, string groupId) 
+        { 
+            await _consoleConnection.InvokeAsync("JoinGroupToServer", myConnectionId, groupId);
+        }
+
+        public async Task DrawToServer(Model data, string myConnectionId, string groupId)
         {
-            await _consoleConnection.InvokeAsync("HistoryToServer", connectionId);
+            await _consoleConnection.InvokeAsync("DrawToServer", data, myConnectionId, groupId);
+        }
+
+        public async Task HistoryToServer(string myConnectionId, string groupId)
+        {
+            await _consoleConnection.InvokeAsync("HistoryToServer", myConnectionId, groupId);
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            _consoleConnection.On<Model,string>("DrawToClient", async (data, connectionId) =>
+            _consoleConnection.On<Dictionary<string, List<Model>>,string>("AvaliableGroupsToClient", async (data, myConnectionId) =>
             {
-                await _internalHub.Clients.All.SendAsync("Update", "Draw", data, connectionId);
+                await _internalHub.Clients.Client(myConnectionId).SendAsync("Groups", data, myConnectionId);
             });
 
-            _consoleConnection.On<List<Model>,string>("HistoryToClient", async (data, myConnectionId) =>
+            _consoleConnection.On<Model,string, string>("DrawToClient", async (data, connectionId, groupId) =>
+            {
+                await _internalHub.Clients.All.SendAsync("Update", "Draw", data, connectionId, groupId);
+            });
+
+            _consoleConnection.On<List<Model>,string, string>("HistoryToClient", async (data, myConnectionId, groupId) =>
             {
                 // MUST BE ONLY ONCE SEND
                 foreach (var item in data)
                 {
-                    await _internalHub.Clients.Client(myConnectionId).SendAsync("Update", "History", item, myConnectionId);
+                    await _internalHub.Clients.Client(myConnectionId).SendAsync("Update", "History", item, myConnectionId, groupId);
                 }
             });
 

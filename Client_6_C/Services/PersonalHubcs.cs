@@ -1,5 +1,6 @@
 ﻿using Domain;
 using Microsoft.AspNetCore.SignalR;
+using System.Text.RegularExpressions;
 
 namespace Task_6_C.Services
 {
@@ -11,15 +12,20 @@ namespace Task_6_C.Services
         {
             _bridge = hostedServices.OfType<ServerService>().First();
         }
-
-        public async Task Draw(Model shape, string connectionId)
+        public async Task AvaliableGroups(string myConnectionId)
         {
-            await _bridge.DrawToServer(shape, connectionId);
+            await _bridge.AvaliableGroupsToServer(myConnectionId);
+        }
+        public async Task JoinGroup(string myConnectionId, string groupId)
+        {
+            await Groups.AddToGroupAsync(myConnectionId, groupId); 
+            await _bridge.JoinGroupToServer(myConnectionId, groupId); 
+            await _bridge.HistoryToServer(myConnectionId, groupId); 
         }
 
-        public async Task History(string connectionId)
+        public async Task Draw(Model shape, string myConnectionId, string groupId)
         {
-            await _bridge.HistoryToServer(connectionId);
+            await _bridge.DrawToServer(shape, myConnectionId, groupId);
         }
     }
 }
