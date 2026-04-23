@@ -1,0 +1,42 @@
+﻿@{
+    Layout = null;
+}
+<input type="number" id="posX" value="10">
+<input type="number" id="posY" value="10">
+<input type="text" id="type">
+<button onclick="sendData()">Send</button>
+
+<div id="log"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+<script>
+    const log = document.getElementById('log');
+
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/hub")
+        .build();
+
+    connection.on("Update", function (message) {
+        log.innerHTML += "<div>" + message + "</div>";
+    });
+
+    function sendData() {
+        const data = {
+            point1: { 
+                x: parseInt(document.getElementById('posX').value), 
+                y: parseInt(document.getElementById('posY').value) 
+            },
+            point2: { 
+                x: 100, 
+                y: 100 
+            },
+            type: document.getElementById('type').value
+        };
+
+        connection.invoke("Draw", data);
+    }
+
+    connection.start().then(() => {
+        connection.invoke("History");
+    });
+</script>

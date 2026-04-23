@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Domain/Domain.csproj" />
+  <Project Path="Server_6_C/Server_6_C.csproj" />
+  <Project Path="Client_6_C/Client_6_C.csproj" />
+</Solution>
