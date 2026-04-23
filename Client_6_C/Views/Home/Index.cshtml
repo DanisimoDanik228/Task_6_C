@@ -5,7 +5,7 @@
     <h1>Choose group</h1>
     <input type="text" id="groupIdInput" placeholder="group id">
     <br>
-    <button id="joinBtn" onclick="joinGroup()">Create or Join</button>
+    <button id="joinBtn" onclick="setGroup()">Create or Join</button>
 </div>
 <div id="groupList">
 
@@ -48,8 +48,14 @@
         return connection.connectionId;
     }
 
-    function joinGroup() {
+    function setGroup()
+    {
         const groupId = document.getElementById('groupIdInput').value;
+        joinGroup(groupId)
+    }
+
+    function joinGroup(groupId) {
+        console.log(groupId);
         if (!groupId) {
             return;
         }
@@ -87,6 +93,8 @@
          groupList.innerHTML = ""; 
 
         for (let id in data) {
+            const groupId = data[id];
+
             const container = document.createElement("div");
             container.style.margin = "10px";
 
@@ -97,10 +105,17 @@
             // canvas.style.display = "block";
 
             const label = document.createElement("div");
-            label.innerText = data[id]; 
+            label.innerText = groupId;
+
+            const btn = document.createElement("button");
+            btn.innerText = "Join Group";
+            btn.onclick = function() {
+            joinGroup(groupId);
+            };
 
             // container.appendChild(canvas);
             container.appendChild(label);
+            container.appendChild(btn);
             groupList.appendChild(container);
 
             // const cCtx = canvas.getContext('2d');
