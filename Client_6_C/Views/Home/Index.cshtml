@@ -1,30 +1,29 @@
 ﻿@{
     Layout = null;
 }
-
-<canvas id="canvas" width="800" height="800" style="border: 1px solid black"></canvas>
+<div style="position: relative; width: 800px; height: 800px;">
+    <canvas id="canvas" width="800" height="800"
+            style="position: absolute; left: 0; top: 0; z-index: 1; border: 1px solid black"></canvas>
+    <canvas id="previewCanvas" width="800" height="800"
+            style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
+</div>
 <button onclick="setMode('line')">line</button>
 <button onclick="setMode('square')">square</button>
 <button onclick="setMode('pen')">pen</button>
-
-
-<input type="number" id="posX" value="10">
-<input type="number" id="posY" value="10">
-<input type="text" id="type">
-<button onclick="sendData()">Send</button>
-
-<div id="log"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
 <script>
     const log = document.getElementById('log');
     const canvas = document.getElementById('canvas');
+    const previewCanvas = document.getElementById('previewCanvas');
+    const ctx = canvas.getContext('2d');
+    const previousCtx = previewCanvas.getContext('2d');
 
-    let currentMode = 'line';
+    let currentMode = 'pen';
     let isDrawing = false;
     let lastX = 0;
     let lastY = 0;
-    
+    let previewStore = {};
     
     // SignalR
 
@@ -32,36 +31,97 @@
         .withUrl("/hub")
         .build();
 
-    connection.on("Update", function (typeReceive, message) {
-        drawCanvas(message);
+    connection.on("Update", function (typeReceive, message, clientConnectionId) {
+        if (message.type === 'pen') 
+        {
+            drawCanvas(message);
+        }
+        else if (message.type == 'line')
+        {
+            if(message.isPreview)
+            {
+                previewStore[clientConnectionId] = message;
+                drawPreviewCanvas();
+            }
+            else
+            {
+                delete previewStore[clientConnectionId];
+                drawCanvas(message);
+            }
+        }
+        else if(message.type == 'square')
+        {
+            if(message.isPreview)
+            {
+                previewStore[clientConnectionId] = message;
+                drawPreviewCanvas();
+            }
+            else
+            {
+                delete previewStore[clientConnectionId];
+                drawCanvas(message);
+            }
+        };
+
     });
 
     function sendData(data) {
-        connection.invoke("Draw", data);
+        connection.invoke("Draw", data, connection.connectionId);
     }
 
     connection.start().then(() => {
-        connection.invoke("History");
+        connection.invoke("History",connection.connectionId);
     });
 
-    // SignalR
     // Canvas
 
-    canvas.onmousedown = (e) => {
+    previewCanvas.onmousedown = (e) => {
         isDrawing = true;
         lastX = e.offsetX;
         lastY = e.offsetY;
     };
 
-    canvas.onmouseup = (e) => {
-        if (!isDrawing) 
-        {
-            return;
-        }
+    previewCanvas.onmouseup = (e) => {
         isDrawing = false;
+
+        if (currentMode === 'pen') {
+            const data = {
+                point1: { x: lastX, y: lastY },
+                point2: { x: e.offsetX, y: e.offsetY },
+                type: 'line',
+                isPreview: false
+            };
+
+            lastX = e.offsetX;
+            lastY = e.offsetY;
+
+            sendData(data);
+        }
+        else if (currentMode == 'line')
+        {
+            const data = {
+                point1: { x: lastX, y: lastY },
+                point2: { x: e.offsetX, y: e.offsetY },
+                type: currentMode,
+                isPreview: false
+            };
+
+            sendData(data);
+        }
+        else if(currentMode == 'square')
+        {
+            const data = {
+                point1: { x: lastX, y: lastY },
+                point2: { x: e.offsetX, y: e.offsetY },
+                type: currentMode,
+                isPreview: false
+            };
+
+            sendData(data);
+        }
     };
 
-    canvas.onmousemove = (e) => {
+    previewCanvas.onmousemove = (e) => {
         if (!isDrawing)
         {
             return;
@@ -71,7 +131,8 @@
             const data = {
                 point1: { x: lastX, y: lastY },
                 point2: { x: e.offsetX, y: e.offsetY },
-                type: 'line' 
+                type: 'line',
+                isPreview: false
             };
 
             lastX = e.offsetX;
@@ -84,7 +145,8 @@
             const data = {
                 point1: { x: lastX, y: lastY },
                 point2: { x: e.offsetX, y: e.offsetY },
-                type: currentMode
+                type: currentMode,
+                isPreview: true
             };
 
             sendData(data);
@@ -94,7 +156,8 @@
             const data = {
                 point1: { x: lastX, y: lastY },
                 point2: { x: e.offsetX, y: e.offsetY },
-                type: currentMode
+                type: currentMode,
+                isPreview: true 
             };
 
             sendData(data);
@@ -106,8 +169,6 @@
     }
 
     function drawCanvas(data) {
-        const ctx = canvas.getContext('2d');
-
         ctx.beginPath();
         ctx.lineWidth = 2;
         ctx.strokeStyle = 'black';
@@ -125,6 +186,30 @@
             ctx.strokeRect(data.point1.x, data.point1.y, width, height);
         }
         ctx.stroke();
+    }
+
+    function drawPreviewCanvas() {
+        previousCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+        
+        for (let id in previewStore) {
+            const shape = previewStore[id];
+            
+            previousCtx.beginPath();
+            previousCtx.lineWidth = 2;
+            previousCtx.strokeStyle = 'black';
+
+            if (shape.type === 'line') 
+            {
+                previousCtx.moveTo(shape.point1.x, shape.point1.y);
+                previousCtx.lineTo(shape.point2.x, shape.point2.y);
+            } else if (shape.type === 'square') 
+            {
+                const width = shape.point2.x - shape.point1.x;
+                const height = shape.point2.y - shape.point1.y;
+                previousCtx.strokeRect(shape.point1.x, shape.point1.y, width, height);
+            }
+            previousCtx.stroke();
+        }
     }
 
     // Canvas

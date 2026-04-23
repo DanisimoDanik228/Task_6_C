@@ -24,9 +24,9 @@ namespace Task_6_C.Services
                 .Build();
         }
 
-        public async Task DrawToServer(Model data)
+        public async Task DrawToServer(Model data, string connectionId)
         {
-            await _consoleConnection.InvokeAsync("DrawToServer", data);
+            await _consoleConnection.InvokeAsync("DrawToServer", data, connectionId);
         }
 
         public async Task HistoryToServer(string connectionId)
@@ -36,17 +36,17 @@ namespace Task_6_C.Services
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            _consoleConnection.On<Model>("DrawToClient", async (data) =>
+            _consoleConnection.On<Model,string>("DrawToClient", async (data, connectionId) =>
             {
-                await _internalHub.Clients.All.SendAsync("Update", "Draw", data);
+                await _internalHub.Clients.All.SendAsync("Update", "Draw", data, connectionId);
             });
 
-            _consoleConnection.On<List<Model>,string>("HistoryToClient", async (data, connectionId) =>
+            _consoleConnection.On<List<Model>,string>("HistoryToClient", async (data, myConnectionId) =>
             {
                 // MUST BE ONLY ONCE SEND
                 foreach (var item in data)
                 {
-                    await _internalHub.Clients.Client(connectionId).SendAsync("Update", "History", item);
+                    await _internalHub.Clients.Client(myConnectionId).SendAsync("Update", "History", item, myConnectionId);
                 }
             });
 

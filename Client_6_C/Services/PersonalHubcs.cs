@@ -12,14 +12,14 @@ namespace Task_6_C.Services
             _bridge = hostedServices.OfType<ServerService>().First();
         }
 
-        public async Task Draw(Model shape)
+        public async Task Draw(Model shape, string connectionId)
         {
-            await _bridge.DrawToServer(shape);
+            await _bridge.DrawToServer(shape, connectionId);
         }
 
-        public async Task History()
+        public async Task History(string connectionId)
         {
-            await _bridge.HistoryToServer(Context.ConnectionId);
+            await _bridge.HistoryToServer(connectionId);
         }
     }
 }

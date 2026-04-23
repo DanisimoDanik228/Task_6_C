@@ -36,14 +36,17 @@ namespace Server_6_C
     {
         private static readonly List<Model> _history = new List<Model>();
 
-        public async Task DrawToServer(Model data)
+        public async Task DrawToServer(Model data, string connectionId)
         {
-            lock (_history)
+            if (!data.isPreview)
             {
-                _history.Add(data);
+                lock (_history)
+                {
+                    _history.Add(data);
+                }
             }
 
-            await Clients.All.SendAsync("DrawToClient", data);
+            await Clients.All.SendAsync("DrawToClient", data, connectionId);
         }
 
         public async Task HistoryToServer(string connectionId)

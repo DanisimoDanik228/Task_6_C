@@ -7,6 +7,7 @@ namespace Domain
         public Point point1 { get; set; }
         public Point point2 { get; set; }
         public string type { get; set; }
+        public bool isPreview { get; set; }
 
         public override string ToString()
         {
