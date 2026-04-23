@@ -5,6 +5,7 @@
 <canvas id="canvas" width="800" height="800" style="border: 1px solid black"></canvas>
 <button onclick="setMode('line')">line</button>
 <button onclick="setMode('square')">square</button>
+<button onclick="setMode('pen')">pen</button>
 
 
 <input type="number" id="posX" value="10">
@@ -21,8 +22,8 @@
 
     let currentMode = 'line';
     let isDrawing = false;
-    let startX = 0;
-    let startY = 0;
+    let lastX = 0;
+    let lastY = 0;
     
     
     // SignalR
@@ -32,7 +33,6 @@
         .build();
 
     connection.on("Update", function (typeReceive, message) {
-        log.innerHTML += "<div>" + typeReceive + " " + message + "</div>";
         drawCanvas(message);
     });
 
@@ -49,8 +49,8 @@
 
     canvas.onmousedown = (e) => {
         isDrawing = true;
-        startX = e.offsetX;
-        startY = e.offsetY;
+        lastX = e.offsetX;
+        lastY = e.offsetY;
     };
 
     canvas.onmouseup = (e) => {
@@ -59,23 +59,53 @@
             return;
         }
         isDrawing = false;
-
-        const data = {
-            point1: { x: startX, y: startY },
-            point2: { x: e.offsetX, y: e.offsetY },
-            type: currentMode
-        };
-
-        sendData(data);
     };
+
+    canvas.onmousemove = (e) => {
+        if (!isDrawing)
+        {
+            return;
+        }
+
+        if (currentMode === 'pen') {
+            const data = {
+                point1: { x: lastX, y: lastY },
+                point2: { x: e.offsetX, y: e.offsetY },
+                type: 'line' 
+            };
+
+            lastX = e.offsetX;
+            lastY = e.offsetY;
+
+            sendData(data);
+        } 
+        else if (currentMode == 'line')
+        {    
+            const data = {
+                point1: { x: lastX, y: lastY },
+                point2: { x: e.offsetX, y: e.offsetY },
+                type: currentMode
+            };
+
+            sendData(data);
+        }
+        else if(currentMode == 'square')
+        {
+            const data = {
+                point1: { x: lastX, y: lastY },
+                point2: { x: e.offsetX, y: e.offsetY },
+                type: currentMode
+            };
+
+            sendData(data);
+        }
+    }
 
     function setMode(mode) {
         currentMode = mode;
     }
 
     function drawCanvas(data) {
-        console.log(data);
-
         const ctx = canvas.getContext('2d');
 
         ctx.beginPath();
@@ -84,7 +114,6 @@
 
         if (data.type === 'line')
         {
-
             ctx.moveTo(data.point1.x, data.point1.y);
             ctx.lineTo(data.point2.x, data.point2.y);
         } 
