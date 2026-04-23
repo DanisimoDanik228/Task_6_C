@@ -39,7 +39,7 @@ namespace Server_6_C
 
         public async Task AvaliableGroupsToServer(string connectionId)
         {
-            await Clients.Caller.SendAsync("AvaliableGroupsToClient", _groupHistory, connectionId);
+            await Clients.Caller.SendAsync("AvaliableGroupsToClient", _groupHistory.Keys.ToList(), connectionId);
         }
 
         public async Task JoinGroupToServer(string connectionId, string groupId)

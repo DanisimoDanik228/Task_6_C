@@ -47,7 +47,7 @@ namespace Task_6_C.Services
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            _consoleConnection.On<Dictionary<string, List<Model>>,string>("AvaliableGroupsToClient", async (data, myConnectionId) =>
+            _consoleConnection.On<List<string>, string>("AvaliableGroupsToClient", async (data, myConnectionId) =>
             {
                 await _internalHub.Clients.Client(myConnectionId).SendAsync("Groups", data, myConnectionId);
             });

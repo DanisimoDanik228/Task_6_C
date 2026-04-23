@@ -90,22 +90,22 @@
             const container = document.createElement("div");
             container.style.margin = "10px";
 
-            const canvas = document.createElement("canvas");
-            canvas.width = 100;
-            canvas.height = 100;
-            canvas.style.border = "1px solid gray";
-            canvas.style.display = "block";
+            // const canvas = document.createElement("canvas");
+            // canvas.width = 100;
+            // canvas.height = 100;
+            // canvas.style.border = "1px solid gray";
+            // canvas.style.display = "block";
 
             const label = document.createElement("div");
-            label.innerText = id; 
+            label.innerText = data[id]; 
 
-            container.appendChild(canvas);
+            // container.appendChild(canvas);
             container.appendChild(label);
             groupList.appendChild(container);
 
-            const cCtx = canvas.getContext('2d');
-            cCtx.scale(0.125, 0.125);
-            drawCanvas(cCtx, data[id]);
+            // const cCtx = canvas.getContext('2d');
+            // cCtx.scale(0.125, 0.125);
+            // drawCanvas(cCtx, data[id]);
         }
     });
 
