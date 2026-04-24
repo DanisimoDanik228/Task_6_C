@@ -16,18 +16,19 @@ namespace Server_6_C
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAllPolicy", policy =>
+                options.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.SetIsOriginAllowed(_ => true)
-                          .AllowAnyMethod()
+                    policy.WithOrigins("http://localhost:5111") 
                           .AllowAnyHeader()
-                          .AllowCredentials();
+                          .AllowAnyMethod()
+                          .AllowCredentials(); 
                 });
             });
 
             var app = builder.Build();
 
-            app.MapHub<DrawHub>("/draw");
+            app.UseCors("CorsPolicy");
+            app.MapHub<DrawHub>("/hub");
 
             app.Run("http://localhost:5123");
         }
@@ -37,25 +38,22 @@ namespace Server_6_C
     {
         private static readonly Dictionary<string, List<Model>> _groupHistory = new();
 
-        public async Task AvaliableGroupsToServer(string connectionId)
+        public async Task getAllGroupIds()
         {
-            //Console.WriteLine("AvaliableGroupsToServer " + connectionId);
-            await Clients.Caller.SendAsync("AvaliableGroupsToClient", _groupHistory.Keys.ToList(), connectionId);
+            await Clients.Caller.SendAsync("AllGroupIds", _groupHistory.Keys.ToList());
         }
 
-        public async Task JoinGroupToServer(string groupId)
+        public async Task JoinGroup(string groupId)
         {
-            Console.WriteLine("JoinGroupToServer " + groupId);
             await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
         }
 
-        public async Task LeaveGroupToServer(string groupId)
+        public async Task LeaveGroup(string groupId)
         {
-            Console.WriteLine("LeaveGroupToServer " + groupId);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupId);
         }
 
-        public async Task DrawToServer(Model data, string connectionId, string groupId)
+        public async Task SendData(Model data, string groupId)
         {
             lock (_groupHistory)
             {
@@ -71,19 +69,13 @@ namespace Server_6_C
 
             }
 
-            await Clients.Group(groupId).SendAsync("DrawToClient", data, connectionId, groupId);
+            await Clients.Group("Home").SendAsync("UpdateHome", data, Context.ConnectionId, groupId);
+            await Clients.Group(groupId).SendAsync("UpdateMain", data, Context.ConnectionId, groupId);
         }
 
-        public async Task HistoryToServer(string connectionId, string groupId)
+        public async Task GetHistory(string groupId)
         {
-            if (groupId == "Home")
-            {
-                return;
-            }
-
-            Console.WriteLine("HistoryToServer " + connectionId + " " + groupId);
-
-            List<Model> data;
+            List<Model> clasterData;
 
             lock (_groupHistory)
             {
@@ -92,10 +84,10 @@ namespace Server_6_C
                     _groupHistory[groupId] = new();
                 }
 
-                data = _groupHistory[groupId].ToList();
+                clasterData = _groupHistory[groupId].ToList();
             }
 
-            await Clients.Caller.SendAsync("HistoryToClient", data, connectionId, groupId);
+            await Clients.Caller.SendAsync("ReceiveHistory", clasterData, groupId);
         }
     }
 }
