@@ -136,16 +136,16 @@
 
     function startDrawing(targetCtx, targetPrevCtx, message, clientConnectionId, groupId) {
 
-    if (!previewStore[groupId]) {
-    previewStore[groupId] = {};
-    }
+        if (!previewStore[groupId]) {
+            previewStore[groupId] = {};
+        }
 
         if (message.type === 'line' || message.type === 'square') {
             if (message.isPreview) {
                 previewStore[groupId][clientConnectionId] = message;
                 drawPreviewCanvas(targetPrevCtx, groupId);
-    } else {
-    if (previewStore[groupId])
+            } else {
+            if (previewStore[groupId])
                 delete previewStore[groupId][clientConnectionId];
                 drawPreviewCanvas(targetPrevCtx, groupId);
                 drawCanvas(targetCtx, [message]);
@@ -272,8 +272,8 @@
 
             if (currentMode === 'pen') {
                 const data = {
-                    point1: { x: lastX, y: lastY },
-                    point2: { x: e.offsetX, y: e.offsetY },
+                    point1: { x: lastX / canvas.width, y: lastY  / canvas.height},
+                    point2: { x: e.offsetX / canvas.width, y: e.offsetY  / canvas.height},
                     type: 'line',
                     isPreview: false
                 };
@@ -283,8 +283,8 @@
             } 
             else if (currentMode == 'line' || currentMode == 'square') {
                 const data = {
-                    point1: { x: lastX, y: lastY },
-                    point2: { x: e.offsetX, y: e.offsetY },
+                    point1: { x: lastX / canvas.width, y: lastY  / canvas.height},
+                    point2: { x: e.offsetX / canvas.width, y: e.offsetY  / canvas.height},
                     type: currentMode,
                     isPreview: true
                 };
@@ -294,33 +294,33 @@
     }
 
     function mouseup(X, Y) {
-            if (!isDrawing)
-            {
-                return;
-            }
-            isDrawing = false;
+        if (!isDrawing)
+        {
+            return;
+        }
+        isDrawing = false;
 
-            if (currentMode === 'pen') {
-                const data = {
-                    point1: { x: lastX, y: lastY },
-                    point2: { x: X, y: Y},
-                    type: 'line',
-                    isPreview: false
-                };
-                lastX = X;
-                lastY = Y;
-                Draw(data,currentGroup);
-            }
-            else {
-                const data = {
-                    point1: { x: lastX, y: lastY },
-                    point2: { x: X, y: Y},
-                    type: currentMode,
-                    isPreview: false
-                };
-                Draw(data,currentGroup);
-            }
-        }   
+        if (currentMode === 'pen') {
+            const data = {
+                point1: { x: lastX  / canvas.width, y: lastY   / canvas.height},
+                point2: { x: X  / canvas.width, y: Y  / canvas.height},
+                type: 'line',
+                isPreview: false
+            };
+            lastX = X;
+            lastY = Y;
+            Draw(data,currentGroup);
+        }
+        else {
+            const data = {
+                point1: { x: lastX  / canvas.width, y: lastY   / canvas.height},
+                point2: { x: X  / canvas.width, y: Y  / canvas.height},
+                type: currentMode,
+                isPreview: false
+            };
+            Draw(data,currentGroup);
+        }
+    }   
 
     function setMode(mode) {
         currentMode = mode;
@@ -335,19 +335,27 @@
         targetCtx.lineWidth = 5;
         targetCtx.strokeStyle = 'black';
 
+        const w = targetCtx.canvas.width;
+        const h = targetCtx.canvas.height;
+
         for(let el of data)
         {
+            const x1 = el.point1.x * w;
+            const y1 = el.point1.y * h;
+            const x2 = el.point2.x * w;
+            const y2 = el.point2.y * h;
+
             if (el.type === 'line') 
             {
-                targetCtx.moveTo(el.point1.x, el.point1.y);
-                targetCtx.lineTo(el.point2.x, el.point2.y);
+                targetCtx.moveTo(x1, y1);
+                targetCtx.lineTo(x2, y2);
             } 
             else if (el.type === 'square')
             {
-                const width = el.point2.x - el.point1.x;
-                const height = el.point2.y - el.point1.y;
+                const width = x2 - x1;
+                const height = y2 - y1;
 
-                targetCtx.strokeRect(el.point1.x, el.point1.y, width, height);
+                targetCtx.strokeRect(x1, y1, width, height);
             }
         }
         targetCtx.stroke();
@@ -358,22 +366,30 @@
         
         const groupStore = previewStore[groupId];
         for (let id in groupStore) {
-    const data = groupStore[id];
+            const el = groupStore[id];
+            const w = targetPreviewCtx.canvas.width;
+            const h = targetPreviewCtx.canvas.height;
+
+            const x1 = el.point1.x * w;
+            const y1 = el.point1.y * h;
+            const x2 = el.point2.x * w;
+            const y2 = el.point2.y * h;
 
             targetPreviewCtx.beginPath();
             targetPreviewCtx.lineWidth = 5;
             targetPreviewCtx.strokeStyle = 'rgba(0,0,0,0.3)';
             targetPreviewCtx.strokeStyle = 'black';
 
-            if (data.type === 'line')
+            if (el.type === 'line')
             {
-                targetPreviewCtx.moveTo(data.point1.x, data.point1.y);
-                targetPreviewCtx.lineTo(data.point2.x, data.point2.y);
-    } else if (data.type === 'square')
+                targetPreviewCtx.moveTo(x1, y1);
+                targetPreviewCtx.lineTo(x2, y2);
+            } else if (el.type === 'square')
             {
-                const width = data.point2.x - data.point1.x;
-                const height = data.point2.y - data.point1.y;
-                targetPreviewCtx.strokeRect(data.point1.x, data.point1.y, width, height);
+                const width = x2 - x1;
+                const height = y2 - y1;
+
+                targetPreviewCtx.strokeRect(x1, y1, width, height);
             }
             targetPreviewCtx.stroke();
         }
