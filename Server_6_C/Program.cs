@@ -39,12 +39,20 @@ namespace Server_6_C
 
         public async Task AvaliableGroupsToServer(string connectionId)
         {
+            //Console.WriteLine("AvaliableGroupsToServer " + connectionId);
             await Clients.Caller.SendAsync("AvaliableGroupsToClient", _groupHistory.Keys.ToList(), connectionId);
         }
 
-        public async Task JoinGroupToServer(string connectionId, string groupId)
+        public async Task JoinGroupToServer(string groupId)
         {
-            await Groups.AddToGroupAsync(connectionId, groupId);
+            Console.WriteLine("JoinGroupToServer " + groupId);
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
+        }
+
+        public async Task LeaveGroupToServer(string groupId)
+        {
+            Console.WriteLine("LeaveGroupToServer " + groupId);
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupId);
         }
 
         public async Task DrawToServer(Model data, string connectionId, string groupId)
@@ -63,11 +71,18 @@ namespace Server_6_C
 
             }
 
-            await Clients.All.SendAsync("DrawToClient", data, connectionId, groupId);
+            await Clients.Group(groupId).SendAsync("DrawToClient", data, connectionId, groupId);
         }
 
         public async Task HistoryToServer(string connectionId, string groupId)
         {
+            if (groupId == "Home")
+            {
+                return;
+            }
+
+            Console.WriteLine("HistoryToServer " + connectionId + " " + groupId);
+
             List<Model> data;
 
             lock (_groupHistory)
