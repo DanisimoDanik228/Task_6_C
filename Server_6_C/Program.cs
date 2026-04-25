@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Server_6_C
 {
@@ -40,6 +41,35 @@ namespace Server_6_C
         private static readonly GroupMembers _groupMembers = new();
         private static readonly PermintationManager _permintationManager = new();
 
+        public async Task SetStatus(string[] connectionIds, string status)
+        {
+            lock(_permintationManager)
+            {
+                if (!_permintationManager.MayEditUser(Context.ConnectionId))
+                {
+                    return;
+                }
+
+                _permintationManager.SetStatus(connectionIds, status);
+            }
+            foreach (var connectionId in connectionIds)
+            { 
+                await Clients.Client(connectionId).SendAsync("SetStatus", status);
+            }
+
+            await Clients.Group("Home").SendAsync("AllUsers", _permintationManager.GetAllUsers());
+        }
+
+        public async Task RemoveUser()
+        {
+            //await OnDisconnectedAsync(null);
+        }
+
+        public async Task AddUser()
+        {
+            _permintationManager.AddUser(Context.ConnectionId);
+            await Clients.Group("Home").SendAsync("AllUsers", _permintationManager.GetAllUsers());
+        }
         public async Task DeleteGroup(string groupId)
         {
             if (!_permintationManager.MayEditGroup(Context.ConnectionId))
@@ -83,19 +113,30 @@ namespace Server_6_C
         {
             _groupMembers.RemoveUser(Context.ConnectionId);
             _permintationManager.RemoveUser(Context.ConnectionId);
+
+            await Clients.Group("Home").SendAsync("AllUsers", _permintationManager.GetAllUsers());
+
             await base.OnDisconnectedAsync(exception);
         }
-
         public async Task GetAllGroupIds()
         {
             await Clients.Caller.SendAsync("AllGroupIds", _groupMembers.GetAllGroups());
         }
+        public async Task GetAllUsers()
+        {
+            await Clients.Caller.SendAsync("AllUsers", _permintationManager.GetAllUsers());
+        }
 
         public async Task JoinGroup(string groupId)
         {
+            var c1 = _permintationManager.GetCountUsers();
             _groupMembers.AddUserToGroup(Context.ConnectionId, groupId);
-            _permintationManager.AddUser(Context.ConnectionId);
             await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
+
+            if (c1 != _permintationManager.GetCountUsers())
+            {
+                await Clients.Group("Home").SendAsync("AllUsers", _permintationManager.GetAllUsers());
+            }
 
             Console.WriteLine(_groupMembers);
             Console.WriteLine(_permintationManager);
@@ -104,7 +145,6 @@ namespace Server_6_C
         public async Task LeaveGroup(string groupId)
         {
             _groupMembers.RemoveUser(Context.ConnectionId);
-            _permintationManager.RemoveUser(Context.ConnectionId);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupId);
         }
 

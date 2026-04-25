@@ -4,7 +4,9 @@ import { DrawingEvent } from './DrawingEvent.js'
 export class DrawingApp {
     constructor() {
         this.currentGroup = "Home";
+        this.currentStatus = "Senior";
         this.currentMode = "pen";
+        this.currentId = "lol";
         this.previewStore = {};
 
         this.canvas = document.getElementById('canvas1');
@@ -15,44 +17,64 @@ export class DrawingApp {
             this.UpdateHome.bind(this),
             this.UpdateMain.bind(this),
             this.ReceiveHistory.bind(this),
-            this.DeleteMainGroup.bind(this)
+            this.DeleteMainGroup.bind(this),
+            this.SetStatus.bind(this),
+            this.AllUsers.bind(this)
         );
         this.drawingEvent = new DrawingEvent(this);
 
         this.groupPage = document.getElementById("groupPage");
         this.drawPage = document.getElementById("drawPage");
         this.groupList = document.getElementById("groupList");
+        this.userList = document.getElementById("userList");
+        this.btnStatus = document.getElementById("btnStatus");
+        this.statusSelect = document.getElementById("statusSelect");
+        this.currentStatusHome = document.getElementById("currentStatusHome");
+        this.currentStatusMain = document.getElementById("currentStatusMain");
 
         window.setMode = (mode) => { this.currentMode = mode; };
+        window.createGroup = (groupId) => { this.network.createGroup(groupId); };
+
         window.loadMain = () => {
             this.network.leaveGroup("Home");
             this.network.joinGroup(this.currentGroup);
             this.network.getHistory(this.currentGroup);
             this.loadMainPage();
         };
-        window.createGroup = (groupId) => { this.createGroup(groupId); };
-
+        window.loadHome = () => {
+            this.network.leaveGroup(this.currentGroup);
+            this.network.joinGroup("Home");
+            this.loadHomePage();
+            this.network.getAllGroupIds();
+        };
         window.addEventListener('resize', () => {
             if (this.drawPage.classList.contains('visible')) {
                 this.resizeCanvas();
                 this.network.getHistory(this.currentGroup);
             }
         });
+        btnStatus.addEventListener('click', () => {
+            const checkboxes = document.querySelectorAll('.user-checkbox');
+            const selectedUsers = [];
+            checkboxes.forEach(s => {
+                if (s.checked) {
+                    selectedUsers.push(s.getAttribute('data-id'));
+                }
+            });
+
+            this.network.setStatus(selectedUsers, statusSelect.value);
+        });
     }
 
     async init() {
         await this.network.start();
+        this.currentId = this.network.connection.connectionId;
+        document.getElementById('connectionIdLabel').innerText = `Name: ${this.currentId}`;
         this.network.createHomeGroup();
+        this.network.addUser();
         this.network.joinGroup("Home");
         this.network.getAllGroupIds();
-    }
-
-    createGroup(groupId) {
-        this.network.createGroup(groupId);
-    }
-
-    deleteGroup(groupId) {
-        this.network.deleteGroup(groupId);
+        this.network.getAllUsers();
     }
 
     resizeCanvas() {
@@ -66,12 +88,14 @@ export class DrawingApp {
     loadHomePage() {
         this.groupPage.classList.replace('invisible', 'visible');
         this.drawPage.classList.replace('visible', 'invisible');
+        document.getElementById("currentStatusHome").innerText = "Status: " + this.currentStatus;
     }
 
     loadMainPage() {
         this.groupPage.classList.replace('visible', 'invisible');
         this.drawPage.classList.replace('invisible', 'visible');
         document.getElementById("showGroupId").innerText = "Group: " + this.currentGroup;
+        document.getElementById("currentStatusMain").innerText = "Status: " + this.currentStatus;
         this.resizeCanvas();
     }
 
@@ -186,11 +210,25 @@ export class DrawingApp {
             this.currentGroup = id;
             this.network.joinGroup(id);
             this.loadMainPage();
+            this.network.getHistory(id);
         };
         window.deleteFromPictureGroup = (id) => {
             this.currentGroup = "Main";
-            this.deleteGroup(id);
+            this.network.deleteGroup(id);
         };
+    }
+
+    AllUsers(users) {
+        console.log("AllUsers", users);
+
+        this.userList.innerHTML = "";
+        users.forEach(userData => {
+            const container = document.createElement("div");
+            container.innerHTML = `
+                <div>${userData.user} - ${userData.status}<div>
+                <input type="checkbox" class="user-checkbox" data-id="${userData.user}">`;
+            this.userList.appendChild(container);
+        });
     }
 
     ReceiveHistory(clasterData, groupId) {
@@ -209,8 +247,17 @@ export class DrawingApp {
 
     DeleteMainGroup() {
         console.log("DeleteMainGroup");
+
         this.currentGroup = "Home";
         this.network.joinGroup("Home");
         this.loadHomePage();
+    }
+
+    SetStatus(status) {
+        console.log("SetStatus",status);
+
+        this.currentStatusHome.innerText = `Status: ${status}`;
+        this.currentStatusMain.innerText = `Status: ${status}`;
+        this.currentStatus = status;
     }
 }
