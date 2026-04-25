@@ -40,12 +40,16 @@ namespace Server_6_C
         private static readonly Dictionary<string, List<Model>> _groupHistory = new();
         private static readonly GroupMembers _groupMembers = new();
 
+        public async Task CreateGroup(string groupId)
+        {
+            _groupMembers.AddGroup(groupId);
+        }
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             _groupMembers.RemoveUser(Context.ConnectionId);
             await base.OnDisconnectedAsync(exception);
         }
-        public async Task getAllGroupIds()
+        public async Task GetAllGroupIds()
         {
             await Clients.Caller.SendAsync("AllGroupIds", _groupMembers.GetAllGroups());
         }
@@ -54,6 +58,8 @@ namespace Server_6_C
         {
             _groupMembers.AddUser(Context.ConnectionId, groupId);
             await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
+
+            Console.WriteLine(_groupMembers);
         }
 
         public async Task LeaveGroup(string groupId)

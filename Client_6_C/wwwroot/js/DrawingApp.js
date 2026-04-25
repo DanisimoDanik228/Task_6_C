@@ -16,14 +16,6 @@ export class DrawingApp {
             this.UpdateMain.bind(this),
             this.ReceiveHistory.bind(this)
         );
-
-        window.addEventListener('resize', () => {
-            if (this.drawPage.classList.contains('visible')) {
-                this.resizeCanvas();
-                this.network.getHistory(this.currentGroup);
-            }
-        });
-
         this.drawingEvent = new DrawingEvent(this);
 
         this.groupPage = document.getElementById("groupPage");
@@ -31,17 +23,26 @@ export class DrawingApp {
         this.groupList = document.getElementById("groupList");
 
         window.setMode = (mode) => { this.currentMode = mode; };
-        window.setGroupFromInput = () => {
-            const input = document.getElementById("groupIdInput");
-            if (input.value) this.currentGroup = input.value;
-        };
         window.loadMain = () => { this.loadMainPage(); };
+        window.createGroup = (groupId) => { this.createGroup(groupId); };
+
+        window.addEventListener('resize', () => {
+            if (this.drawPage.classList.contains('visible')) {
+                this.resizeCanvas();
+                this.network.getHistory(this.currentGroup);
+            }
+        });
     }
 
     async init() {
         await this.network.start();
+        this.network.createGroup("Home");
         this.network.joinGroup("Home");
         this.network.getAllGroupIds();
+    }
+
+    createGroup(groupId) {
+        this.network.createGroup(groupId);
     }
 
     resizeCanvas() {

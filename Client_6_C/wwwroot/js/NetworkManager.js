@@ -40,4 +40,8 @@ export class NetworkManager {
     getHistory(groupId) {
         this.connection.invoke("GetHistory", groupId);
     }
+
+    createGroup(groupId) {
+        this.connection.invoke("CreateGroup", groupId);
+    }
 }

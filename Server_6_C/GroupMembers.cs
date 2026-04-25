@@ -1,12 +1,13 @@
 ﻿namespace Server_6_C
 {
     using System.Collections.Concurrent;
+    using System.Text;
 
     public class GroupMembers
     {
         private static readonly Dictionary<string, List<string>> _groupMembers = new();
 
-        public void AddUser(string connectionId, string groupId)
+        public bool AddUser(string connectionId, string groupId)
         {
             lock (_groupMembers)
             { 
@@ -14,18 +15,20 @@
 
                 if (!_groupMembers.ContainsKey(groupId))
                 {
-                    AddGroup(groupId);
+                    return false;
                 }
 
                 _groupMembers[groupId].Add(connectionId);
             }
+
+            return true;
         }
 
         public void AddGroup(string groupId)
         {
             lock (_groupMembers)
-            { 
-                _groupMembers.Add(groupId,new());
+            {
+                _groupMembers.TryAdd(groupId,new());
             }
         }
 
@@ -49,6 +52,26 @@
             { 
                 return _groupMembers.Keys;
             }
+        }
+
+        public override string ToString() 
+        {
+            var str = new StringBuilder();
+
+            foreach (var item in _groupMembers)
+            {
+                str.Append(item.Key + ": ");
+
+                foreach (var item1 in item.Value)
+                {
+                    str.Append(item1 + " ");
+                }
+
+                str.AppendLine();
+
+            }
+
+            return str.ToString();
         }
     }
 }

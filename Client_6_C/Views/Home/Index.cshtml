@@ -31,10 +31,8 @@
 
 <div id="groupPage" class="visible">
     <div id="chooseGroup">
-        <h1>Choose group</h1>
         <input type="text" id="groupIdInput" placeholder="group id">
-        <br>
-        <button id="joinBtn" onclick="setGroupFromInput();loadMain()">Create or Join</button>
+        <button onclick="createGroup(document.getElementById('groupIdInput').value);">Create</button>
     </div>
     <div id="groupList"></div>
 </div>
