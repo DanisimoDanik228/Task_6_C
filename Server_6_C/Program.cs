@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Server_6_C
@@ -41,6 +42,18 @@ namespace Server_6_C
         private static readonly GroupMembers _groupMembers = new();
         private static readonly PermintationManager _permintationManager = new();
 
+        public async Task SetName(string Name)
+        {
+            bool res= _permintationManager.SetName(Context.ConnectionId, Name);
+
+            await Clients.Caller.SendAsync("SetName", res);
+
+            if (res)
+            {
+                await Clients.Group("Home").SendAsync("AllUsers", _permintationManager.GetAllUsers());
+            }
+        }
+
         public async Task SetStatus(string[] connectionIds, string status)
         {
             lock(_permintationManager)
@@ -52,6 +65,7 @@ namespace Server_6_C
 
                 _permintationManager.SetStatus(connectionIds, status);
             }
+
             foreach (var connectionId in connectionIds)
             { 
                 await Clients.Client(connectionId).SendAsync("SetStatus", status);

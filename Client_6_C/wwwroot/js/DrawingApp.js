@@ -6,7 +6,8 @@ export class DrawingApp {
         this.currentGroup = "Home";
         this.currentStatus = "Senior";
         this.currentMode = "pen";
-        this.currentId = "lol";
+        this.currentId = "currentId";
+        this.currentName = "currentName";
         this.previewStore = {};
 
         this.canvas = document.getElementById('canvas1');
@@ -19,7 +20,8 @@ export class DrawingApp {
             this.ReceiveHistory.bind(this),
             this.DeleteMainGroup.bind(this),
             this.SetStatus.bind(this),
-            this.AllUsers.bind(this)
+            this.AllUsers.bind(this),
+            this.SetName.bind(this)
         );
         this.drawingEvent = new DrawingEvent(this);
 
@@ -28,9 +30,12 @@ export class DrawingApp {
         this.groupList = document.getElementById("groupList");
         this.userList = document.getElementById("userList");
         this.btnStatus = document.getElementById("btnStatus");
+        this.btnName = document.getElementById("btnName");
         this.statusSelect = document.getElementById("statusSelect");
         this.currentStatusHome = document.getElementById("currentStatusHome");
         this.currentStatusMain = document.getElementById("currentStatusMain");
+        this.currentNameHome = document.getElementById("currentNameHome");
+        this.currentNameMain = document.getElementById("currentNameMain");
 
         window.setMode = (mode) => { this.currentMode = mode; };
         window.createGroup = (groupId) => { this.network.createGroup(groupId); };
@@ -53,6 +58,9 @@ export class DrawingApp {
                 this.network.getHistory(this.currentGroup);
             }
         });
+        btnName.addEventListener('click', () => {
+            this.network.setName(this.currentNameHome.value);
+        });
         btnStatus.addEventListener('click', () => {
             const checkboxes = document.querySelectorAll('.user-checkbox');
             const selectedUsers = [];
@@ -69,7 +77,7 @@ export class DrawingApp {
     async init() {
         await this.network.start();
         this.currentId = this.network.connection.connectionId;
-        document.getElementById('connectionIdLabel').innerText = `Name: ${this.currentId}`;
+        this.currentNameHome.placeholder = `Name: ${this.currentName}`;
         this.network.createHomeGroup();
         this.network.addUser();
         this.network.joinGroup("Home");
@@ -218,9 +226,16 @@ export class DrawingApp {
 
         this.userList.innerHTML = "";
         users.forEach(userData => {
+            let showName = userData.name;
+            if (userData.connectionId === this.currentId) {
+                this.currentName = userData.name;
+                this.currentNameHome.placeholder = `${this.currentName}`;
+                showName = `(Me) ${showName}`;
+            }
+
             const container = document.createElement("div");
             container.innerHTML = `
-                <div>${userData.user} - ${userData.status}<div>
+                <div>${showName} - ${userData.status}<div>
                 <input type="checkbox" class="user-checkbox" data-id="${userData.user}">`;
             this.userList.appendChild(container);
         });
@@ -254,5 +269,17 @@ export class DrawingApp {
         this.currentStatusHome.innerText = `Status: ${status}`;
         this.currentStatusMain.innerText = `Status: ${status}`;
         this.currentStatus = status;
+    }
+
+    SetName(res) {
+        console.log("SetName", res);
+
+        if (res) {
+            this.currentNameMain.innerText = `${this.currentNameHome.value}`;
+            this.currentName = this.currentNameHome.value;
+        }
+        else {
+            alert("This name exist");
+        }
     }
 }

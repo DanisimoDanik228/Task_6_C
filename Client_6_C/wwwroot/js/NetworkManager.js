@@ -8,7 +8,8 @@ export class NetworkManager {
         ReceiveHistory,
         DeleteMainGroup,
         SetStatus,
-        AllUsers) {
+        AllUsers,
+        SetName) {
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl("http://localhost:5123/hub")
             .build();
@@ -20,6 +21,7 @@ export class NetworkManager {
         this.connection.on("DeleteMainGroup", DeleteMainGroup);
         this.connection.on("SetStatus", SetStatus);
         this.connection.on("AllUsers", AllUsers);
+        this.connection.on("SetName", SetName);
     }
 
     async start() {
@@ -28,6 +30,10 @@ export class NetworkManager {
 
     addUser() {
         this.connection.invoke("AddUser");
+    }
+
+    setName(name) {
+        this.connection.invoke("SetName",name);
     }
 
     getAllGroupIds() {

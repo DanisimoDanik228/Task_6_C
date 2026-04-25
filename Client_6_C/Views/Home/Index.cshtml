@@ -31,10 +31,12 @@
 
 <div id="groupPage" class="visible">
     <div id="chooseGroup">
-        <input type="text" id="groupIdInput" placeholder="group id">
+        <input type="number" id="groupIdInput" placeholder="group id">
         <button onclick="createGroup(document.getElementById('groupIdInput').value);">Create</button>
     </div>
-    <div id="connectionIdLabel"></div>
+    <div>Name: </div>
+    <input id="currentNameHome" type="text">
+    <button id="btnName">Set</button>
     <div id="currentStatusHome">Status: Senior</div>
     <div id="userList"></div>
     <select id="statusSelect">
@@ -52,8 +54,9 @@
             <button onclick="setMode('line')">line</button>
             <button onclick="setMode('square')">square</button>
             <button onclick="setMode('pen')">pen</button>
-            <h2 id="showGroupId">Group: </h2>
+            <div id="showGroupId"></div>
             <div id="currentStatusMain">Status: Senior</div>
+            <div id="currentNameMain"></div>
             <button onclick="loadHome()">Go home</button>
         </div>
         <div>

@@ -1,6 +1,9 @@
 ﻿using Domain;
+using Microsoft.AspNetCore.Connections.Features;
 using System.Collections.Concurrent;
+using System.Net.NetworkInformation;
 using System.Text;
+using System.Xml.Linq;
 
 namespace Server_6_C
 {
@@ -13,109 +16,106 @@ namespace Server_6_C
 
     public class PermintationManager
     {
-        private static UserStatus parseStatus(string status)
+        public class UserInfo
         {
-            if (status == "Senior")
-            {
-                return UserStatus.Senior;
-            }
-            else
-            {
-                if (status == "Middle")
-                {
-                    return UserStatus.Middle;
-                }
-                else
-                {
-                    return UserStatus.Junior;
-                }
-            }
-        }
-        private static string parseStatus(UserStatus status)
-        {
-            if (status == UserStatus.Senior)
-            {
-                return "Senior";
-            }
-            else
-            {
-                if (status == UserStatus.Middle)
-                {
-                    return "Middle";
-                }
-                else
-                {
-                    return "Junior";
-                }
-            }
+            public string connectionId { get; set; }
+            public string name { get; set; }
+            public string status { get; set; }
         }
 
+        private static string getRandName()
+        {
+            return "TempName_" + Guid.NewGuid().ToString();
+        }
         // default => senior
 
         // senior - view + edit existing page + add/remove pages + edit status other
         // widdle - view + edit existing page
         // junior - view
-        private const UserStatus _defaultStatus = UserStatus.Senior;
+        private const string _defaultStatus = "Senior";
 
-        private readonly ConcurrentDictionary<string, UserStatus> _usersStatus = new();
+        private readonly ConcurrentDictionary<string, UserInfo> _usersStatus = new();
+        private readonly HashSet<string> _existingNames = new([""]);
 
-        public UserStatus GetStatus(string connectionId)
+        public string GetStatus(string connectionId)
         {
-            return _usersStatus[connectionId];
+            return _usersStatus[connectionId].status;
+        }
+
+        public bool SetName(string connectionId, string name)
+        {
+            lock (_usersStatus)
+            {
+                if (!_existingNames.Contains(name))
+                {
+                    _usersStatus[connectionId].name = name;
+                    _existingNames.Add(name);
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
 
         public bool AddUser(string connectionId)
         {
             RemoveUser(connectionId);
 
-            return _usersStatus.TryAdd(connectionId, _defaultStatus);
+            return _usersStatus.TryAdd(connectionId, new UserInfo() { connectionId= connectionId, status = _defaultStatus, name = getRandName() });
         }
 
         public void RemoveUser(string connectionId)
         {
             lock (_usersStatus)
             {
+                if (_usersStatus.ContainsKey(connectionId))
+                { 
+                    if (_existingNames.Contains(_usersStatus[connectionId].name))
+                    { 
+                        _existingNames.Remove(_usersStatus[connectionId].name);
+                    }
+                }
+                
                 _usersStatus.Remove(connectionId, out _);
             }
         }
 
         public bool MayView(string authorConnectionId)
         {
-            return (_usersStatus[authorConnectionId] == UserStatus.Junior) ||
-                   (_usersStatus[authorConnectionId] == UserStatus.Middle) ||
-                   (_usersStatus[authorConnectionId] == UserStatus.Senior);
+            return (_usersStatus[authorConnectionId].status == "Junior") ||
+                   (_usersStatus[authorConnectionId].status == "Middle") ||
+                   (_usersStatus[authorConnectionId].status == "Senior");
         }
 
         public bool MayEditPage(string authorConnectionId)
         {
-            return (_usersStatus[authorConnectionId] == UserStatus.Middle) || 
-                   (_usersStatus[authorConnectionId] == UserStatus.Senior);
+            return (_usersStatus[authorConnectionId].status == "Middle") || 
+                   (_usersStatus[authorConnectionId].status == "Senior");
         }
 
         public bool MayEditGroup(string authorConnectionId)
         {
-            return (_usersStatus[authorConnectionId] == UserStatus.Senior);
+            return (_usersStatus[authorConnectionId].status == "Senior");
         }
         public bool MayEditUser(string authorConnectionId)
         {
-            return (_usersStatus[authorConnectionId] == UserStatus.Senior);
+            return (_usersStatus[authorConnectionId].status == "Senior");
         }
 
         public void SetStatus(string[] connectionid, string status)
         {
             foreach (var item in connectionid)
             {
-                _usersStatus[item] = parseStatus(status);
+                _usersStatus[item].status = status;
             }
         }
 
-        public UserData[] GetAllUsers()
+        public UserInfo[] GetAllUsers()
         {
-            return _usersStatus.Select(s => new UserData()
-            {
-                User = s.Key,
-                Status = parseStatus(s.Value)
-            }).ToArray();
+            return _usersStatus.Values.ToArray();
         }
 
         public int GetCountUsers()
