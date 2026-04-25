@@ -31,7 +31,7 @@
 
 <div id="groupPage" class="visible">
     <div id="chooseGroup">
-        <input type="number" id="groupIdInput" placeholder="group id">
+        <input type="number" value="0" min="0" id="groupIdInput" placeholder="group id">
         <button onclick="createGroup(document.getElementById('groupIdInput').value);">Create</button>
     </div>
     <div>Name: </div>
@@ -58,6 +58,7 @@
             <div id="currentStatusMain">Status: Senior</div>
             <div id="currentNameMain"></div>
             <button onclick="loadHome()">Go home</button>
+            <button onclick="saveCanvasAsJpeg();">Download</button>
         </div>
         <div>
             <div id="canvas-container">
@@ -75,4 +76,27 @@
 
     const app = new DrawingApp();
     app.init();
+
+</script>
+<script>
+    function saveCanvasAsJpeg() {
+        const canvas = document.getElementById('canvas1');
+
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const tempCtx = tempCanvas.getContext('2d');
+
+        tempCtx.fillStyle = "white";
+        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+        tempCtx.drawImage(canvas, 0, 0);
+
+        const dataUrl = tempCanvas.toDataURL('image/jpeg', 0.9);
+
+        const link = document.createElement('a');
+        link.download = 'my-drawing.jpg';
+        link.href = dataUrl;
+        link.click();
+    }
 </script>

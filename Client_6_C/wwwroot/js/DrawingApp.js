@@ -38,7 +38,11 @@ export class DrawingApp {
         this.currentNameMain = document.getElementById("currentNameMain");
 
         window.setMode = (mode) => { this.currentMode = mode; };
-        window.createGroup = (groupId) => { this.network.createGroup(groupId); };
+        window.createGroup = (groupId) => {
+            if (groupId.length > 0) {
+                this.network.createGroup(groupId);
+            }
+        };
 
         window.loadMain = () => {
             this.network.leaveGroup("Home");
