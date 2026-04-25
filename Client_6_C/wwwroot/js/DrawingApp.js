@@ -262,7 +262,7 @@ export class DrawingApp {
             const container = document.createElement("div");
             container.innerHTML = `
                 <div>${showName} - ${userData.status}<div>
-                <input type="checkbox" class="user-checkbox" data-id="${userData.user}">`;
+                <input type="checkbox" class="user-checkbox" data-id="${userData.connectionId}">`;
             this.userList.appendChild(container);
         });
     }
