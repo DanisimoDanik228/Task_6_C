@@ -36,20 +36,29 @@ namespace Server_6_C
 
     public class DrawHub : Hub
     {
-        private static readonly Dictionary<string, List<Model>> _groupHistory = new();
 
+        private static readonly Dictionary<string, List<Model>> _groupHistory = new();
+        private static readonly GroupMembers _groupMembers = new();
+
+        public override async Task OnDisconnectedAsync(Exception exception)
+        {
+            _groupMembers.RemoveUser(Context.ConnectionId);
+            await base.OnDisconnectedAsync(exception);
+        }
         public async Task getAllGroupIds()
         {
-            await Clients.Caller.SendAsync("AllGroupIds", _groupHistory.Keys.ToList());
+            await Clients.Caller.SendAsync("AllGroupIds", _groupMembers.GetAllGroups());
         }
 
         public async Task JoinGroup(string groupId)
         {
+            _groupMembers.AddUser(Context.ConnectionId, groupId);
             await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
         }
 
         public async Task LeaveGroup(string groupId)
         {
+            _groupMembers.RemoveUser(Context.ConnectionId);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupId);
         }
 
