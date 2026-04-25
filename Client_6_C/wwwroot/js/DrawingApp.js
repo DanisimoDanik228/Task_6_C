@@ -159,7 +159,7 @@ export class DrawingApp {
 
             const container = document.createElement("div");
             container.innerHTML = `
-                <div style="position:relative; width:100px; height:100px; display:inline-block; margin:10px;">
+                <div style="position:relative; width:100px; height:130px; display:inline-block; margin:10px;">
                     <canvas id="${groupId}GroupId" width="800" height="800" style="width:100px; height:100px; position:absolute; border:1px solid gray; z-index:1"></canvas>
                     <canvas id="${groupId}previewGroupId" width="800" height="800" style="width:100px; height:100px; position:absolute; border:1px solid gray; z-index:2"></canvas>
                     <div style="margin-top:105px">${groupId}</div>
