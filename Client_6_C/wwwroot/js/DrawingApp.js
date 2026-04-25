@@ -14,7 +14,8 @@ export class DrawingApp {
             this.AllGroupIds.bind(this),
             this.UpdateHome.bind(this),
             this.UpdateMain.bind(this),
-            this.ReceiveHistory.bind(this)
+            this.ReceiveHistory.bind(this),
+            this.DeleteMainGroup.bind(this)
         );
         this.drawingEvent = new DrawingEvent(this);
 
@@ -23,7 +24,12 @@ export class DrawingApp {
         this.groupList = document.getElementById("groupList");
 
         window.setMode = (mode) => { this.currentMode = mode; };
-        window.loadMain = () => { this.loadMainPage(); };
+        window.loadMain = () => {
+            this.network.leaveGroup("Home");
+            this.network.joinGroup(this.currentGroup);
+            this.network.getHistory(this.currentGroup);
+            this.loadMainPage();
+        };
         window.createGroup = (groupId) => { this.createGroup(groupId); };
 
         window.addEventListener('resize', () => {
@@ -36,13 +42,17 @@ export class DrawingApp {
 
     async init() {
         await this.network.start();
-        this.network.createGroup("Home");
+        this.network.createHomeGroup();
         this.network.joinGroup("Home");
         this.network.getAllGroupIds();
     }
 
     createGroup(groupId) {
         this.network.createGroup(groupId);
+    }
+
+    deleteGroup(groupId) {
+        this.network.deleteGroup(groupId);
     }
 
     resizeCanvas() {
@@ -53,11 +63,12 @@ export class DrawingApp {
         this.previewCanvas.height = container.clientHeight;
     }
 
-    loadMainPage() {
-        this.network.leaveGroup("Home");
-        this.network.joinGroup(this.currentGroup);
-        this.network.getHistory(this.currentGroup);
+    loadHomePage() {
+        this.groupPage.classList.replace('invisible', 'visible');
+        this.drawPage.classList.replace('visible', 'invisible');
+    }
 
+    loadMainPage() {
         this.groupPage.classList.replace('visible', 'invisible');
         this.drawPage.classList.replace('invisible', 'visible');
         document.getElementById("showGroupId").innerText = "Group: " + this.currentGroup;
@@ -164,6 +175,7 @@ export class DrawingApp {
                     <canvas id="${groupId}previewGroupId" width="800" height="800" style="width:100px; height:100px; position:absolute; border:1px solid gray; z-index:2"></canvas>
                     <div style="margin-top:105px">${groupId}</div>
                     <button onclick="joinFromPictureGroup('${groupId}')">Join</button>
+                    <button onclick="deleteFromPictureGroup('${groupId}')">Delete</button>
                 </div>
             `;
             this.groupList.appendChild(container);
@@ -172,7 +184,12 @@ export class DrawingApp {
 
         window.joinFromPictureGroup = (id) => {
             this.currentGroup = id;
+            this.network.joinGroup(id);
             this.loadMainPage();
+        };
+        window.deleteFromPictureGroup = (id) => {
+            this.currentGroup = "Main";
+            this.deleteGroup(id);
         };
     }
 
@@ -188,5 +205,12 @@ export class DrawingApp {
                 this.UpdateHome(data, null, groupId);
             }
         });
+    }
+
+    DeleteMainGroup() {
+        console.log("DeleteMainGroup");
+        this.currentGroup = "Home";
+        this.network.joinGroup("Home");
+        this.loadHomePage();
     }
 }

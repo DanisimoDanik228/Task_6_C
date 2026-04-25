@@ -1,7 +1,7 @@
 ﻿import * as signalR from 'https://esm.sh/@microsoft/signalr@6.0.1';
 
 export class NetworkManager {
-    constructor(AllGroupIds, UpdateHome, UpdateMain, ReceiveHistory) {
+    constructor(AllGroupIds, UpdateHome, UpdateMain, ReceiveHistory, DeleteMainGroup) {
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl("http://localhost:5123/hub")
             .build();
@@ -10,6 +10,7 @@ export class NetworkManager {
         this.connection.on("UpdateMain", UpdateMain);
         this.connection.on("AllGroupIds", AllGroupIds);
         this.connection.on("ReceiveHistory", ReceiveHistory);
+        this.connection.on("DeleteMainGroup", DeleteMainGroup);
     }
 
     async start() {
@@ -43,5 +44,17 @@ export class NetworkManager {
 
     createGroup(groupId) {
         this.connection.invoke("CreateGroup", groupId);
+    }
+
+    deleteGroup(groupId) {
+        this.connection.invoke("DeleteGroup", groupId);
+    }
+
+    createHomeGroup() {
+        this.connection.invoke("CreateHomeGroup");
+    }
+
+    deleteMainGroup() {
+        this.connection.invoke("DeleteMainGroup");
     }
 }

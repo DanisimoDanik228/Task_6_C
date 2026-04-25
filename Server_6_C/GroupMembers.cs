@@ -5,9 +5,8 @@
 
     public class GroupMembers
     {
-        private static readonly Dictionary<string, List<string>> _groupMembers = new();
-
-        public bool AddUser(string connectionId, string groupId)
+        private readonly Dictionary<string, List<string>> _groupMembers = new();
+        public bool AddUserToGroup(string connectionId, string groupId)
         {
             lock (_groupMembers)
             { 
@@ -28,22 +27,48 @@
         {
             lock (_groupMembers)
             {
-                return _groupMembers.TryAdd(groupId,new());
+                if (_groupMembers.ContainsKey(groupId))
+                {
+                    return false;
+                }
+                else
+                {
+                    return _groupMembers.TryAdd(groupId, new());
+                }
             }
         }
 
-        public void RemoveUser(string connectionId)
+        public bool RemoveGroup(string groupId)
         {
             lock (_groupMembers)
-            { 
+            {
+                if (_groupMembers.ContainsKey(groupId))
+                {
+                    _groupMembers.Remove(groupId);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public bool RemoveUser(string connectionId)
+        {
+            lock (_groupMembers)
+            {
                 foreach (var item in _groupMembers)
                 {
                     if (item.Value.Contains(connectionId))
                     {
                         item.Value.Remove(connectionId);
+                        return true;
                     }
                 }
             }
+
+            return false;
         }
 
         public IEnumerable<string> GetAllGroups()
