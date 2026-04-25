@@ -9,6 +9,7 @@ namespace Domain
         public string type { get; set; }
         public bool isPreview { get; set; }
         public object otherData { get; set; }
+        public object color { get; set; }
 
         public override string ToString()
         {

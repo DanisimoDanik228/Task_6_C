@@ -4,6 +4,7 @@
         this.isDrawing = false;
         this.lastX = 0;
         this.lastY = 0;
+        this.color = 0;
 
         this.canvas = document.getElementById('canvas1');
         this.previewCanvas = document.getElementById('canvas2');
@@ -39,7 +40,8 @@
             point2: { x: x / this.canvas.width, y: y / this.canvas.height },
             type: mode,
             isPreview: isPreview,
-            otherData: otherData
+            otherData: otherData,
+            color: this.color
         };
     }
 
@@ -61,6 +63,7 @@
         this.isDrawing = true;
         this.lastX = x;
         this.lastY = y;
+        this.color = this.app.colorInput.value;
     }
 
     ProcessDrawing(x, y) {

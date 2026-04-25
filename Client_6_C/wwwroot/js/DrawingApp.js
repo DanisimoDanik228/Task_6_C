@@ -37,6 +37,7 @@ export class DrawingApp {
         this.currentStatusMain = document.getElementById("currentStatusMain");
         this.currentNameHome = document.getElementById("currentNameHome");
         this.currentNameMain = document.getElementById("currentNameMain");
+        this.colorInput = document.getElementById("colorInput");
 
         window.setMode = (mode) => {
             this.currentMode = mode;
@@ -122,6 +123,7 @@ export class DrawingApp {
         const y2 = el.point2.y * h;
 
         if (el.type === 'text') {
+            ctx.fillStyle = el.color;
             this.drawText(ctx, el.otherData, x1, y1);
         }
 
@@ -140,11 +142,12 @@ export class DrawingApp {
     drawMainCanvas(ctx, data) {
         ctx.beginPath();
         ctx.lineWidth = 5;
-        ctx.strokeStyle = 'black';
+        ctx.strokeStyle = data.color;
         const w = ctx.canvas.width;
         const h = ctx.canvas.height;
 
         for (let el of data) {
+            ctx.strokeStyle = el.color;
             this.drawElOnCanvas(ctx,el,w,h);
         }
         ctx.stroke();
@@ -157,11 +160,10 @@ export class DrawingApp {
 
         previewCtx.beginPath();
         previewCtx.lineWidth = 5;
-        previewCtx.strokeStyle = 'black';
-
 
         for (let id in groupStore) {
             const el = groupStore[id];
+            previewCtx.strokeStyle = el.color;
             this.drawElOnCanvas(previewCtx, el, w, h);
             previewCtx.stroke();
         }
@@ -187,7 +189,6 @@ export class DrawingApp {
     drawText(ctx, text, x, y) {
         console.log(ctx, text, x, y);
         const fontFace = "Arial";
-        ctx.fillStyle = "black";
         ctx.font = `25px ${fontFace}`;
 
         ctx.textBaseline = "top";
