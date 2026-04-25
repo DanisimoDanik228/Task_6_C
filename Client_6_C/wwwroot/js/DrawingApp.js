@@ -130,6 +130,10 @@ export class DrawingApp {
             ctx.lineTo(x2, y2);
         } else if (el.type === 'square') {
             ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+        } else if (el.type === 'circle') {
+            ctx.arc(x1, y1, Math.abs(x2-x1), 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.closePath();
         }
     }
 

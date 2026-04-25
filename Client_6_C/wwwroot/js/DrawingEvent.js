@@ -72,7 +72,9 @@
             this.lastX = x;
             this.lastY = y;
             this.app.network.sendDraw(data, this.app.currentGroup);
-        } else if (this.app.currentMode === 'line' || this.app.currentMode === 'square') {
+        } else if (this.app.currentMode === 'line' ||
+            this.app.currentMode === 'square' ||
+            this.app.currentMode === 'circle') {
             const data = this.prepareData(x, y, this.app.currentMode, true);
 
             this.app.network.sendDraw(data, this.app.currentGroup);
