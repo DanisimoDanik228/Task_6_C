@@ -29,18 +29,22 @@
         };
     }
 
+    prepareData(x, y, sendingMode, isPreview) {
+        return {
+            point1: { x: this.lastX / this.canvas.width, y: this.lastY / this.canvas.height },
+            point2: { x: x / this.canvas.width, y: y / this.canvas.height },
+            type: sendingMode,
+            isPreview: isPreview
+        };
+    }
+
     StopDrawing(x, y) {
         if (!this.isDrawing) return;
         this.isDrawing = false;
 
         const sendingMode = (this.app.currentMode === 'pen') ? 'line' : this.app.currentMode;
 
-        const data = {
-            point1: { x: this.lastX / this.canvas.width, y: this.lastY / this.canvas.height },
-            point2: { x: x / this.canvas.width, y: y / this.canvas.height },
-            type: sendingMode,
-            isPreview: false
-        };
+        const data = this.prepareData(x, y, sendingMode, false);
 
         this.app.network.sendDraw(data, this.app.currentGroup);
     }
@@ -57,22 +61,14 @@
         const sendingMode = (this.app.currentMode === 'pen') ? 'line' : this.app.currentMode;
 
         if (this.app.currentMode === 'pen') {
-            const data = {
-                point1: { x: this.lastX / this.canvas.width, y: this.lastY / this.canvas.height },
-                point2: { x: x / this.canvas.width, y: y / this.canvas.height },
-                type: sendingMode,
-                isPreview: false
-            };
+            const data = this.prepareData(x, y, sendingMode, false);
+
             this.lastX = x;
             this.lastY = y;
             this.app.network.sendDraw(data, this.app.currentGroup);
         } else if (this.app.currentMode === 'line' || this.app.currentMode === 'square') {
-            const data = {
-                point1: { x: this.lastX / this.canvas.width, y: this.lastY / this.canvas.height },
-                point2: { x: x / this.canvas.width, y: y / this.canvas.height },
-                type: sendingMode,
-                isPreview: true
-            };
+            const data = this.prepareData(x, y, sendingMode, true);
+
             this.app.network.sendDraw(data, this.app.currentGroup);
         }
     }
