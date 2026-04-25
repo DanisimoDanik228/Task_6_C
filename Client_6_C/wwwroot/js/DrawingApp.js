@@ -133,6 +133,8 @@ export class DrawingApp {
     }
 
     UpdateHome(data, clientConnectionId, groupId) {
+        console.log("UpdateHome", clientConnectionId, groupId);
+
         const thumbC = document.getElementById(`${groupId}GroupId`);
         const thumbP = document.getElementById(`${groupId}previewGroupId`);
         if (thumbC && thumbP) {
@@ -141,12 +143,16 @@ export class DrawingApp {
     }
 
     UpdateMain(message, clientConnectionId) {
+        console.log("UpdateMain", message, clientConnectionId);
+
         const ctx = document.getElementById('canvas1').getContext('2d');
         const prevCtx = document.getElementById('canvas2').getContext('2d');
         this.processDrawingTwoCanvas(ctx, prevCtx, message, clientConnectionId, this.currentGroup);
     }
 
     AllGroupIds(data) {
+        console.log("AllGroupIds", data);
+
         this.groupList.innerHTML = "";
         data.forEach(groupId => {
             if (groupId === "Home") return;
@@ -171,6 +177,8 @@ export class DrawingApp {
     }
 
     ReceiveHistory(clasterData, groupId) {
+        console.log("ReceiveHistory",clasterData, groupId);
+
         if (!clasterData) return;
         clasterData.forEach(data => {
             if (this.currentGroup === groupId && this.drawPage.classList.contains('visible')) {

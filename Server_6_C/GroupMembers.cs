@@ -24,11 +24,11 @@
             return true;
         }
 
-        public void AddGroup(string groupId)
+        public bool AddGroup(string groupId)
         {
             lock (_groupMembers)
             {
-                _groupMembers.TryAdd(groupId,new());
+                return _groupMembers.TryAdd(groupId,new());
             }
         }
 

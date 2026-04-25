@@ -42,7 +42,12 @@ namespace Server_6_C
 
         public async Task CreateGroup(string groupId)
         {
-            _groupMembers.AddGroup(groupId);
+            var res = _groupMembers.AddGroup(groupId);
+
+            if (res)
+            {
+                await Clients.Group("Home").SendAsync("AllGroupIds", _groupMembers.GetAllGroups());
+            }
         }
         public override async Task OnDisconnectedAsync(Exception exception)
         {
