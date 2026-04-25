@@ -12,6 +12,7 @@ export class DrawingApp {
 
         this.canvas = document.getElementById('canvas1');
         this.previewCanvas = document.getElementById('canvas2');
+        this.textToDraw = document.getElementById('textToDraw');
 
         this.network = new NetworkManager(
             this.AllGroupIds.bind(this),
@@ -37,7 +38,9 @@ export class DrawingApp {
         this.currentNameHome = document.getElementById("currentNameHome");
         this.currentNameMain = document.getElementById("currentNameMain");
 
-        window.setMode = (mode) => { this.currentMode = mode; };
+        window.setMode = (mode) => {
+            this.currentMode = mode;
+        };
         window.createGroup = (groupId) => {
             if (groupId.length > 0) {
                 this.network.createGroup(groupId);
@@ -109,6 +112,7 @@ export class DrawingApp {
         document.getElementById("showGroupId").innerText = "Group: " + this.currentGroup;
         document.getElementById("currentStatusMain").innerText = "Status: " + this.currentStatus;
         this.resizeCanvas();
+        this.currentNameMain.innerText = `${this.currentName}`;
     }
 
     drawElOnCanvas(ctx, el, w, h) {
@@ -116,6 +120,10 @@ export class DrawingApp {
         const y1 = el.point1.y * h;
         const x2 = el.point2.x * w;
         const y2 = el.point2.y * h;
+
+        if (el.type === 'text') {
+            this.drawText(ctx, el.otherData, x1, y1);
+        }
 
         if (el.type === 'line') {
             ctx.moveTo(x1, y1);
@@ -160,18 +168,27 @@ export class DrawingApp {
             this.previewStore[groupId] = {};
         }
 
-        if (message.type === 'line' || message.type === 'square') {
-            if (message.isPreview && clientConnectionId != null) {
-                this.previewStore[groupId][clientConnectionId] = message;
-                this.drawPreviewCanvas(targetPrevCtx, this.previewStore[groupId]);
-            } else {
-                if (clientConnectionId != null)
-                    delete this.previewStore[groupId][clientConnectionId];
+        if (message.isPreview && clientConnectionId != null) {
+            this.previewStore[groupId][clientConnectionId] = message;
+            this.drawPreviewCanvas(targetPrevCtx, this.previewStore[groupId]);
+        } else {
+            if (clientConnectionId != null)
+                delete this.previewStore[groupId][clientConnectionId];
 
-                this.drawPreviewCanvas(targetPrevCtx, this.previewStore[groupId]);
-                this.drawMainCanvas(targetCtx, [message]);
-            }
+            this.drawPreviewCanvas(targetPrevCtx, this.previewStore[groupId]);
+            this.drawMainCanvas(targetCtx, [message]);
         }
+    }
+
+    drawText(ctx, text, x, y) {
+        console.log(ctx, text, x, y);
+        const fontFace = "Arial";
+        ctx.fillStyle = "black";
+        ctx.font = `25px ${fontFace}`;
+
+        ctx.textBaseline = "top";
+
+        ctx.fillText(text, x, y);
     }
 
     UpdateHome(data, clientConnectionId, groupId) {

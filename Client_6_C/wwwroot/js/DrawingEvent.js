@@ -29,12 +29,17 @@
         };
     }
 
-    prepareData(x, y, sendingMode, isPreview) {
+    prepareData(x, y, mode, isPreview, otherData = null) {
+        if (mode === 'pen') {
+            mode = 'line';
+        }
+
         return {
             point1: { x: this.lastX / this.canvas.width, y: this.lastY / this.canvas.height },
             point2: { x: x / this.canvas.width, y: y / this.canvas.height },
-            type: sendingMode,
-            isPreview: isPreview
+            type: mode,
+            isPreview: isPreview,
+            otherData: otherData
         };
     }
 
@@ -42,9 +47,12 @@
         if (!this.isDrawing) return;
         this.isDrawing = false;
 
-        const sendingMode = (this.app.currentMode === 'pen') ? 'line' : this.app.currentMode;
+        let otherData = null;
+        if (this.app.currentMode === 'text') {
+            otherData = this.app.textToDraw.value;
+        }
 
-        const data = this.prepareData(x, y, sendingMode, false);
+        const data = this.prepareData(x, y, this.app.currentMode, false, otherData);
 
         this.app.network.sendDraw(data, this.app.currentGroup);
     }
@@ -58,16 +66,14 @@
     ProcessDrawing(x, y) {
         if (!this.isDrawing) return;
 
-        const sendingMode = (this.app.currentMode === 'pen') ? 'line' : this.app.currentMode;
-
         if (this.app.currentMode === 'pen') {
-            const data = this.prepareData(x, y, sendingMode, false);
+            const data = this.prepareData(x, y, this.app.currentMode, false);
 
             this.lastX = x;
             this.lastY = y;
             this.app.network.sendDraw(data, this.app.currentGroup);
         } else if (this.app.currentMode === 'line' || this.app.currentMode === 'square') {
-            const data = this.prepareData(x, y, sendingMode, true);
+            const data = this.prepareData(x, y, this.app.currentMode, true);
 
             this.app.network.sendDraw(data, this.app.currentGroup);
         }
