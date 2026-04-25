@@ -99,6 +99,20 @@ export class DrawingApp {
         this.resizeCanvas();
     }
 
+    drawElOnCanvas(ctx, el, w, h) {
+        const x1 = el.point1.x * w;
+        const y1 = el.point1.y * h;
+        const x2 = el.point2.x * w;
+        const y2 = el.point2.y * h;
+
+        if (el.type === 'line') {
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+        } else if (el.type === 'square') {
+            ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+        }
+    }
+
     drawMainCanvas(ctx, data) {
         ctx.beginPath();
         ctx.lineWidth = 5;
@@ -107,17 +121,7 @@ export class DrawingApp {
         const h = ctx.canvas.height;
 
         for (let el of data) {
-            const x1 = el.point1.x * w;
-            const y1 = el.point1.y * h;
-            const x2 = el.point2.x * w;
-            const y2 = el.point2.y * h;
-
-            if (el.type === 'line') {
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
-            } else if (el.type === 'square') {
-                ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
-            }
+            this.drawElOnCanvas(ctx,el,w,h);
         }
         ctx.stroke();
     }
@@ -127,23 +131,14 @@ export class DrawingApp {
         const w = previewCtx.canvas.width;
         const h = previewCtx.canvas.height;
 
+        previewCtx.beginPath();
+        previewCtx.lineWidth = 5;
+        previewCtx.strokeStyle = 'black';
+
+
         for (let id in groupStore) {
             const el = groupStore[id];
-            previewCtx.beginPath();
-            previewCtx.lineWidth = 5;
-            previewCtx.strokeStyle = 'black';
-
-            const x1 = el.point1.x * w;
-            const y1 = el.point1.y * h;
-            const x2 = el.point2.x * w;
-            const y2 = el.point2.y * h;
-
-            if (el.type === 'line') {
-                previewCtx.moveTo(x1, y1);
-                previewCtx.lineTo(x2, y2);
-            } else if (el.type === 'square') {
-                previewCtx.strokeRect(x1, y1, x2 - x1, y2 - y1);
-            }
+            this.drawElOnCanvas(previewCtx, el, w, h);
             previewCtx.stroke();
         }
     }
