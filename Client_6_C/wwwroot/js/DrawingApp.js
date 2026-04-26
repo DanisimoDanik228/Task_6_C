@@ -36,6 +36,7 @@ export class DrawingApp {
         this.currentStatusHome = document.getElementById("currentStatusHome");
         this.currentStatusMain = document.getElementById("currentStatusMain");
         this.currentNameHome = document.getElementById("currentNameHome");
+        this.currentNameHomeLabel = document.getElementById("currentNameHomeLabel");
         this.currentNameMain = document.getElementById("currentNameMain");
         this.colorInput = document.getElementById("colorInput");
 
@@ -85,7 +86,6 @@ export class DrawingApp {
     async init() {
         await this.network.start();
         this.currentId = this.network.connection.connectionId;
-        this.currentNameHome.placeholder = `Name: ${this.currentName}`;
         this.network.createHomeGroup();
         this.network.addUser();
         this.network.joinGroup("Home");
@@ -218,7 +218,7 @@ export class DrawingApp {
         console.log("AllGroupIds", data);
 
         this.groupList.innerHTML = "";
-        this.groupList.className = "d-flex flex-wrap justify-content-center";
+        this.groupList.className = "d-flex flex-wrap justify-content-center gap-3 rounded-3 border border-black border-4 border-opacity-25";
 
         this.groupList.style.maxHeight = "200px";
         this.groupList.style.overflowY = "auto"; 
@@ -227,12 +227,13 @@ export class DrawingApp {
             if (groupId === "Home") return;
 
             const container = document.createElement("div");
-            container.className = "border border-4 border-black rounded-3 border-opacity-25";
+            container.className = "border border-color-light rounded-1";
+
             container.innerHTML = `
                 <div style="position:relative;  display:inline-block; width:100px; height:130px;">
                     <canvas id="${groupId}GroupId" class="border border-black rounded-2" style="position:absolute; width:100px; height:100px; z-index:1"></canvas>
                     <canvas id="${groupId}previewGroupId" style="position:absolute; width:100px; height:100px; z-index:2"></canvas>
-                    <div style="margin-top:105px">${groupId}</div>
+                    <div class="text-truncate" style="margin-top:105px">${groupId}</div>
                     <div class="btn-group btn-group-sm">
                         <button class="btn btn-green py-0" onclick="joinFromPictureGroup('${groupId}')">Join</button>
                         <button class="btn btn-outline-danger py-0" onclick="deleteFromPictureGroup('${groupId}')">Delete</button>
@@ -260,6 +261,7 @@ export class DrawingApp {
 
         this.userList.innerHTML = "";
 
+        this.userList.className = "list-group";
         userList.style.maxHeight = "200px";
         userList.style.overflowY = "auto";
         userList.style.overflowX = "hidden";
@@ -269,6 +271,7 @@ export class DrawingApp {
             if (userData.connectionId === this.currentId) {
                 this.currentName = userData.name;
                 this.currentNameHome.placeholder = `${this.currentName}`;
+                this.currentNameHomeLabel.innerText = `${this.currentName}`;
                 showName = `(Me) ${showName}`;
             }
 
@@ -277,7 +280,7 @@ export class DrawingApp {
 
             container.innerHTML = `
                 <input id="input${userData.name}UnfoUser" type="checkbox" class="btn-check user-checkbox" data-id="${userData.connectionId}">
-                <label for="input${userData.name}UnfoUser" class="btn btn-dark border-secondary" >${showName} - ${userData.status}<label>
+                <label for="input${userData.name}UnfoUser" class="text-truncate btn btn-dark border-secondary" >${showName} - ${userData.status}<label>
                 `;
             this.userList.appendChild(container);
         });
@@ -318,6 +321,7 @@ export class DrawingApp {
 
         if (res) {
             this.currentNameMain.innerText = `${this.currentNameHome.value}`;
+            this.currentNameHomeLabel.innerText = `${this.currentNameHome.value}`;
             this.currentName = this.currentNameHome.value;
         }
         else {

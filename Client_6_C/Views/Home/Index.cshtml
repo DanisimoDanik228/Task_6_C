@@ -26,7 +26,7 @@
     }
 
     .btn-green {
-        background-color: var(--maincolor3);
+        backface-visibility:hidden;
         border-color:green;
         color: green;
     }
@@ -50,23 +50,35 @@
                 <div class="position-absolute top-50 start-50 translate-middle rounded-4 p-2 col-4
 text-white border border-4 border-primary border-opacity-10 shadow-lg"
                      style="background-color: var(--maincolor3);">
-                    <div id="chooseGroup" class="input-group">
-                        <div class="text-light px-4 ">
+                    <div id="chooseGroup" class="row">
+                        <div class="text-light px-4 col-3">
                             Group Id
                         </div>
-                        <input id="groupIdInput" class="form-control text-light bg-dark" type="number" min="0">
-                        <button class="btn btn btn-outline-light px-4" onclick="createGroup(document.getElementById('groupIdInput').value);">Create</button>
+                        <div class="col-9">
+                            <div class="input-group">
+                                <input id="groupIdInput" class="form-control text-light bg-dark" type="number" min="0">
+                                <button class="btn btn btn-outline-light px-4" onclick="createGroup(document.getElementById('groupIdInput').value);" style="width:130px;">Create</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <div class="text-light px-4">
+                    <div class="row">
+                        <div class="text-light px-4 col-3">
                             Name
                         </div>
-                        <input id="currentNameHome" class="form-control text-light bg-dark" type="text">
-                        <button id="btnName" class="btn btn-outline-light px-4" onclick="createGroup(document.getElementById('groupIdInput').value);">Set</button>
+                        <div class="col-9">
+                            <div class="input-group">
+                                <input id="currentNameHome" class="form-control text-light bg-dark" type="text">
+                                <button id="btnName" class="btn btn-outline-light px-4" onclick="createGroup(document.getElementById('groupIdInput').value);" style="width:130px;">Set Name</button>
+                            </div>
+                        </div>
                     </div>
                     <div class="p-2 rounded-3 bg-opacity-100 border border-black border-4 border-opacity-25">
-                        <div>Status: </div>
-                        <div id="currentStatusHome">Senior</div>
+                        <div>
+                            Name: <span id="currentNameHomeLabel" class="text-info"></span>
+                        </div>
+                        <div>
+                            Status: <span id="currentStatusHome" class="text-info">Senior</span>
+                        </div>
                         <div id="userList"></div>
                         <div class="input-group">
                             <select id="statusSelect" class="form-select overflow-auto text-white bg-dark">
