@@ -34,59 +34,55 @@
 </style>
 
 <div id="groupPage" class="visible">
-    <div class="container-fluid">
-        <div class="row min-vh-100">
-            <div class="col-12 gradient position-relative">
-                <div class="position-absolute rounded-bottom-3 translate-middle-x top-0 start-50 fs-3 fw-light text-uppercase px-3"
-                     style="color: var(--maincolor1); background-color: lightgray">
-                    Werty Paint Application
-                </div>
-                <div class="position-absolute top-50 start-50 translate-middle rounded-4 p-2 col-sm-10 col-md-8 col-lg-6 col-xl-4 text-white border border-4 border-primary border-opacity-10 shadow-lg"
-                     style="background-color: var(--maincolor3); overflow: hidden">
-                    <div class="status-panel-box">
-                         <div id="chooseGroup" class="row ">
-                            <div class="text-light px-4 col-3">
-                                Group Id
-                            </div>
-                            <div class="col-9">
-                                <div class="input-group">
-                                    <input id="groupIdInput" class="form-control text-light bg-dark" type="number" min="0">
-                                    <button class="btn btn-outline-light px-4" onclick="createGroup(document.getElementById('groupIdInput').value);" style="width:130px;">Create</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="text-light px-4 col-3">
-                                Name
-                            </div>
-                            <div class="col-9">
-                                <div class="input-group">
-                                    <input id="currentNameHome" class="form-control text-light bg-dark" type="text">
-                                    <button id="btnName" class="btn btn-outline-light px-4" onclick="createGroup(document.getElementById('groupIdInput').value);" style="width:130px;">Set Name</button>
-                                </div>
-                            </div>
-                        </div>
+    <div class="gradient min-vh-100 d-flex align-items-center justify-content-center w-100">
+        <div class="position-absolute top-0 rounded-bottom-3 fs-3 fw-light text-uppercase px-3"
+                style="color: var(--maincolor1); background-color: lightgray">
+            Werty Paint Application
+        </div>
+        <div class="rounded-4 p-2 col-sm-10 col-md-8 col-lg-6 col-xl-4 text-white border border-4 border-primary border-opacity-10 shadow-lg"
+                style="background-color: var(--maincolor3); overflow: hidden">
+            <div class="status-panel-box">
+                    <div id="chooseGroup" class="row ">
+                    <div class="text-light px-4 col-3">
+                        Group Id
                     </div>
-                    <div class="status-panel-box">
-                        <div>
-                            Name: <span id="currentNameHomeLabel" class="text-info"></span>
-                        </div>
-                        <div>
-                            Status: <span id="currentStatusHome" class="text-info">Senior</span>
-                        </div>
-                        <div id="userList"></div>
+                    <div class="col-9">
                         <div class="input-group">
-                            <select id="statusSelect" class="form-select overflow-auto text-white bg-dark">
-                                <option value="Senior">Senior</option>
-                                <option value="Middle">Middle</option>
-                                <option value="Junior">Junior</option>
-                            </select>
-                            <button id="btnStatus" class="btn btn-outline-light">Set</button>
+                            <input id="groupIdInput" class="form-control text-light bg-dark" type="number" min="0">
+                            <button class="btn btn-outline-light px-4" onclick="createGroup(document.getElementById('groupIdInput').value);" style="width:130px;">Create</button>
                         </div>
                     </div>
-                    <div id="groupList"></div>
+                </div>
+                <div class="row">
+                    <div class="text-light px-4 col-3">
+                        Name
+                    </div>
+                    <div class="col-9">
+                        <div class="input-group">
+                            <input id="currentNameHome" class="form-control text-light bg-dark" type="text">
+                            <button id="btnName" class="btn btn-outline-light px-4" onclick="createGroup(document.getElementById('groupIdInput').value);" style="width:130px;">Set Name</button>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <div class="status-panel-box">
+                <div>
+                    Name: <span id="currentNameHomeLabel" class="text-info"></span>
+                </div>
+                <div>
+                    Status: <span id="currentStatusHome" class="text-info">Senior</span>
+                </div>
+                <div id="userList"></div>
+                <div class="input-group">
+                    <select id="statusSelect" class="form-select overflow-auto text-white bg-dark">
+                        <option value="Senior">Senior</option>
+                        <option value="Middle">Middle</option>
+                        <option value="Junior">Junior</option>
+                    </select>
+                    <button id="btnStatus" class="btn btn-outline-light">Set</button>
+                </div>
+            </div>
+            <div id="groupList"></div>
         </div>
     </div>
 </div>
