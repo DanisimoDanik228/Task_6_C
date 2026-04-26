@@ -1,7 +1,4 @@
-﻿@{
-    Layout = null;
-}
-<style>
+﻿<style>
     .visible{
         display:block;
     }
@@ -9,8 +6,8 @@
     .invisible {
         display: none;
     }
-
-    #drawingPlace {
+    
+    .drawingPage {
         display: grid;
         grid-template-columns: 200px 1fr;
         height: 100vh;
@@ -27,25 +24,108 @@
         left: 0;
         top: 0;
     }
+
+    .status-panel-box {
+        padding: 0.5rem;
+        border-radius: 0.5rem; 
+        border: 4px solid rgba(0, 0, 0, 0.25); 
+    }
+
 </style>
 
 <div id="groupPage" class="visible">
-    <div id="chooseGroup">
-        <input type="text" id="groupIdInput" placeholder="group id">
-        <button onclick="createGroup(document.getElementById('groupIdInput').value);">Create</button>
+    <div class="gradient min-vh-100 d-flex align-items-center justify-content-center w-100">
+        <div class="position-absolute top-0 rounded-bottom-3 fs-3 fw-light text-uppercase px-3"
+                style="color: var(--maincolor1); background-color: lightgray">
+            Werty Paint Application
+        </div>
+        <div class="rounded-4 p-2 col-sm-10 col-md-8 col-lg-6 col-xl-4 text-white border border-4 border-primary border-opacity-10 shadow-lg"
+                style="background-color: var(--maincolor3); overflow: hidden">
+            <div class="status-panel-box">
+                    <div id="chooseGroup" class="row ">
+                    <div class="text-light px-4 col-3">
+                        Group Id
+                    </div>
+                    <div class="col-9">
+                        <div class="input-group">
+                            <input id="groupIdInput" class="form-control text-light bg-dark" type="number" min="0">
+                            <button class="btn btn-outline-light px-4" onclick="createGroup(document.getElementById('groupIdInput').value);" style="width:130px;">Create</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="text-light px-4 col-3">
+                        Name
+                    </div>
+                    <div class="col-9">
+                        <div class="input-group">
+                            <input id="currentNameHome" class="form-control text-light bg-dark" type="text">
+                            <button id="btnName" class="btn btn-outline-light px-4" onclick="createGroup(document.getElementById('groupIdInput').value);" style="width:130px;">Set Name</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="status-panel-box">
+                <div>
+                    Name: <span id="currentNameHomeLabel" class="text-info"></span>
+                </div>
+                <div>
+                    Status: <span id="currentStatusHome" class="text-info">Senior</span>
+                </div>
+                <div id="userList"></div>
+                <div class="input-group">
+                    <select id="statusSelect" class="form-select overflow-auto text-white bg-dark">
+                        <option value="Senior">Senior</option>
+                        <option value="Middle">Middle</option>
+                        <option value="Junior">Junior</option>
+                    </select>
+                    <button id="btnStatus" class="btn btn-outline-light">Set</button>
+                </div>
+            </div>
+            <div id="groupList"></div>
+        </div>
     </div>
-    <div id="groupList"></div>
 </div>
 
 <div id="drawPage" class="invisible">
-    <div id="drawingPlace">
-        <div>
-            <button onclick="setMode('line')">line</button>
-            <button onclick="setMode('square')">square</button>
-            <button onclick="setMode('pen')">pen</button>
-            <h2 id="showGroupId">Group: </h2>
+    <div id="drawingPlace" class="drawingPage">
+        <div class="gradient">
+            <div class="status-panel-box">
+                <div class="d-flex flex-wrap gap-1">
+                    <button class="btn btn-outline-light" onclick="setMode('line')">line</button>
+                    <button class="btn btn-outline-light" onclick="setMode('pen')">pen</button>
+                    <button class="btn btn-outline-light" onclick="setMode('text')">text</button>
+
+                    <button class="btn btn-outline-light" onclick="setMode('square')">square</button>
+                    <button class="btn btn-outline-light" onclick="setMode('circle')">circle</button>
+                </div>
+                <div class="input-group">
+                    <input id="textToDraw" type="text"
+                            class="bg-transparent text-white border-light text-center rounded-2"
+                            value="text" style="width:170px;">
+
+                    <input type="color" id="colorInput"
+                            class="form-control border-secondary px-1"
+                            value=black style="width:170px;">
+                </div>
+            </div>
+            <div class="status-panel-box">
+                <div class="text-white">
+                    Group Id: <span id="showGroupId" class="text-info">Senior</span>
+                </div>
+                <div class ="text-white">
+                    Status: <span id="currentStatusMain" class="text-info">Senior</span>
+                </div>          
+                <div class ="text-white">
+                    Name: <span id="currentNameMain" class="text-info">Senior</span>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-outline-info" onclick="loadHome()">Go home</button>
+                <button class="btn btn-outline-info" onclick="saveCanvasAsJpeg();">Download</button>
+            </div>
         </div>
-        <div>
+        <div >
             <div id="canvas-container">
                 <canvas id="canvas1" width="800" height="800"
                         style="position: absolute; left: 0; top: 0; z-index: 1; border: 1px solid black"></canvas>
@@ -55,11 +135,32 @@
         </div>
     </div>
 </div>
-
 <script type="module">
     import { DrawingApp } from '/js/DrawingApp.js';
 
     const app = new DrawingApp();
     app.init();
 
+</script>
+<script>
+    function saveCanvasAsJpeg() {
+        const canvas = document.getElementById('canvas1');
+
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const tempCtx = tempCanvas.getContext('2d');
+
+        tempCtx.fillStyle = "white";
+        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+        tempCtx.drawImage(canvas, 0, 0);
+
+        const dataUrl = tempCanvas.toDataURL('image/jpeg', 0.9);
+
+        const link = document.createElement('a');
+        link.download = 'my-drawing.jpg';
+        link.href = dataUrl;
+        link.click();
+    }
 </script>

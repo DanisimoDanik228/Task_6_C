@@ -1,7 +1,15 @@
 ﻿import * as signalR from 'https://esm.sh/@microsoft/signalr@6.0.1';
 
 export class NetworkManager {
-    constructor(AllGroupIds, UpdateHome, UpdateMain, ReceiveHistory) {
+    constructor(
+        AllGroupIds,
+        UpdateHome,
+        UpdateMain,
+        ReceiveHistory,
+        DeleteMainGroup,
+        SetStatus,
+        AllUsers,
+        SetName) {
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl("http://localhost:5123/hub")
             .build();
@@ -10,19 +18,30 @@ export class NetworkManager {
         this.connection.on("UpdateMain", UpdateMain);
         this.connection.on("AllGroupIds", AllGroupIds);
         this.connection.on("ReceiveHistory", ReceiveHistory);
+        this.connection.on("DeleteMainGroup", DeleteMainGroup);
+        this.connection.on("SetStatus", SetStatus);
+        this.connection.on("AllUsers", AllUsers);
+        this.connection.on("SetName", SetName);
     }
 
     async start() {
-        try {
-            await this.connection.start();
-            console.log("SignalR Connected");
-        } catch (err) {
-            console.error("SignalR Connection Error: ", err);
-        }
+        await this.connection.start();
+    }
+
+    addUser() {
+        this.connection.invoke("AddUser");
+    }
+
+    setName(name) {
+        this.connection.invoke("SetName",name);
     }
 
     getAllGroupIds() {
         this.connection.invoke("GetAllGroupIds");
+    }
+
+    getAllUsers() {
+        this.connection.invoke("GetAllUsers");
     }
 
     joinGroup(groupId) {
@@ -43,5 +62,21 @@ export class NetworkManager {
 
     createGroup(groupId) {
         this.connection.invoke("CreateGroup", groupId);
+    }
+
+    deleteGroup(groupId) {
+        this.connection.invoke("DeleteGroup", groupId);
+    }
+
+    createHomeGroup() {
+        this.connection.invoke("CreateHomeGroup");
+    }
+
+    deleteMainGroup() {
+        this.connection.invoke("DeleteMainGroup");
+    }
+
+    setStatus(users,status) {
+        this.connection.invoke("SetStatus",users,status);
     }
 }

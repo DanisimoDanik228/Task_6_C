@@ -1,6 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+       .AddRazorRuntimeCompilation();
 builder.Services.AddSignalR();
 
 var app = builder.Build();
@@ -18,4 +19,4 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 
-app.Run();
+app.Run("http://localhost:5111");
