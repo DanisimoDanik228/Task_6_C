@@ -33,24 +33,35 @@
                 <div class="position-absolute bg-secondary  rounded-bottom-3 translate-middle-x top-0 start-50 text-white fs-3 fw-light text-uppercase">
                     Werty Paint Application
                 </div>
-                <div class="position-absolute top-50 start-50 translate-middle rounded-4 p-2 col-4 
+                <div class="position-absolute top-50 start-50 translate-middle rounded-4 p-2 col-4
 text-white border border-4 border-primary border-opacity-10 shadow-lg"
                 style="background-color: var(--maincolor3);">
-                    <div id="chooseGroup">
-                        <input type="number" value="0" min="0" id="groupIdInput" placeholder="group id">
-                        <button onclick="createGroup(document.getElementById('groupIdInput').value);">Create</button>
+                    <div id="chooseGroup" class="input-group">
+                        <div class="text-light px-4">
+                            Group Id
+                        </div>
+                        <input id="groupIdInput" class="form-control text-light bg-dark" type="number" min="0">
+                        <button class="btn btn btn-outline-light px-4" onclick="createGroup(document.getElementById('groupIdInput').value);">Create</button>
                     </div>
-                    <div>Name: </div>
-                    <input id="currentNameHome" type="text">
-                    <button id="btnName">Set</button>
-                    <div id="currentStatusHome">Status: Senior</div>
-                    <div id="userList"></div>
-                    <select id="statusSelect">
-                        <option value="Senior">Senior</option>
-                        <option value="Middle">Middle</option>
-                        <option value="Junior">Junior</option>
-                    </select>
-                    <button id="btnStatus">Set</button>
+                    <div class="input-group">
+                        <div class="text-light px-4">
+                            Name
+                        </div>
+                        <input id="currentNameHome" class="form-control text-light bg-dark" type="text">
+                        <button id="btnName" class="btn btn-outline-light px-4" onclick="createGroup(document.getElementById('groupIdInput').value);">Set</button>
+                    </div>
+                    <div class="p-2 rounded-3 bg-opacity-100 border border-black border-4 border-opacity-25">
+                        <div id="currentStatusHome">Status: Senior</div>
+                        <div id="userList"></div>
+                        <div class="input-group">
+                            <select id="statusSelect" class="form-select overflow-auto text-white bg-dark">
+                                <option value="Senior">Senior</option>
+                                <option value="Middle">Middle</option>
+                                <option value="Junior">Junior</option>
+                            </select>
+                            <button id="btnStatus" class="btn btn-outline-light">Set</button>
+                        </div>
+                    </div>
                     <div id="groupList"></div>
                 </div>
             </div>
