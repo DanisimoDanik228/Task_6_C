@@ -218,17 +218,25 @@ export class DrawingApp {
         console.log("AllGroupIds", data);
 
         this.groupList.innerHTML = "";
+        this.groupList.className = "d-flex flex-wrap justify-content-center";
+
+        this.groupList.style.maxHeight = "200px";
+        this.groupList.style.overflowY = "auto"; 
+        this.groupList.style.overflowX = "hidden";
         data.forEach(groupId => {
             if (groupId === "Home") return;
 
             const container = document.createElement("div");
+            container.className = "border border-4 border-black rounded-3 border-opacity-25";
             container.innerHTML = `
-                <div style="position:relative; width:100px; height:130px; display:inline-block; margin:10px;">
-                    <canvas id="${groupId}GroupId" width="800" height="800" style="width:100px; height:100px; position:absolute; border:1px solid gray; z-index:1"></canvas>
-                    <canvas id="${groupId}previewGroupId" width="800" height="800" style="width:100px; height:100px; position:absolute; border:1px solid gray; z-index:2"></canvas>
+                <div style="position:relative;  display:inline-block; width:100px; height:130px;">
+                    <canvas id="${groupId}GroupId" class="border border-black rounded-2" style="position:absolute; width:100px; height:100px; z-index:1"></canvas>
+                    <canvas id="${groupId}previewGroupId" style="position:absolute; width:100px; height:100px; z-index:2"></canvas>
                     <div style="margin-top:105px">${groupId}</div>
-                    <button onclick="joinFromPictureGroup('${groupId}')">Join</button>
-                    <button onclick="deleteFromPictureGroup('${groupId}')">Delete</button>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-green py-0" onclick="joinFromPictureGroup('${groupId}')">Join</button>
+                        <button class="btn btn-outline-danger py-0" onclick="deleteFromPictureGroup('${groupId}')">Delete</button>
+                    </div>
                 </div>
             `;
             this.groupList.appendChild(container);
@@ -251,6 +259,11 @@ export class DrawingApp {
         console.log("AllUsers", users);
 
         this.userList.innerHTML = "";
+
+        userList.style.maxHeight = "200px";
+        userList.style.overflowY = "auto";
+        userList.style.overflowX = "hidden";
+
         users.forEach(userData => {
             let showName = userData.name;
             if (userData.connectionId === this.currentId) {
@@ -260,9 +273,12 @@ export class DrawingApp {
             }
 
             const container = document.createElement("div");
+            container.className = "btn-group"
+
             container.innerHTML = `
-                <div>${showName} - ${userData.status}<div>
-                <input type="checkbox" class="user-checkbox" data-id="${userData.connectionId}">`;
+                <input id="input${userData.name}UnfoUser" type="checkbox" class="btn-check user-checkbox" data-id="${userData.connectionId}">
+                <label for="input${userData.name}UnfoUser" class="btn btn-dark border-secondary" >${showName} - ${userData.status}<label>
+                `;
             this.userList.appendChild(container);
         });
     }
@@ -292,8 +308,8 @@ export class DrawingApp {
     SetStatus(status) {
         console.log("SetStatus",status);
 
-        this.currentStatusHome.innerText = `Status: ${status}`;
-        this.currentStatusMain.innerText = `Status: ${status}`;
+        this.currentStatusHome.innerText = `${status}`;
+        this.currentStatusMain.innerText = `${status}`;
         this.currentStatus = status;
     }
 

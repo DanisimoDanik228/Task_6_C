@@ -24,20 +24,34 @@
         left: 0;
         top: 0;
     }
+
+    .btn-green {
+        background-color: var(--maincolor3);
+        border-color:green;
+        color: green;
+    }
+
+    .btn-green:hover {
+        background-color: green; 
+        color: white;
+    }
+
+
 </style>
 
 <div id="groupPage" class="visible">
     <div class="container-fluid">
         <div class="row min-vh-100">
             <div class="col-12 gradient position-relative">
-                <div class="position-absolute bg-secondary  rounded-bottom-3 translate-middle-x top-0 start-50 text-white fs-3 fw-light text-uppercase">
+                <div class="position-absolute rounded-bottom-3 translate-middle-x top-0 start-50 fs-3 fw-light text-uppercase px-3"
+                     style="color: var(--maincolor1); background-color: lightgray">
                     Werty Paint Application
                 </div>
                 <div class="position-absolute top-50 start-50 translate-middle rounded-4 p-2 col-4
 text-white border border-4 border-primary border-opacity-10 shadow-lg"
-                style="background-color: var(--maincolor3);">
+                     style="background-color: var(--maincolor3);">
                     <div id="chooseGroup" class="input-group">
-                        <div class="text-light px-4">
+                        <div class="text-light px-4 ">
                             Group Id
                         </div>
                         <input id="groupIdInput" class="form-control text-light bg-dark" type="number" min="0">
@@ -51,7 +65,8 @@ text-white border border-4 border-primary border-opacity-10 shadow-lg"
                         <button id="btnName" class="btn btn-outline-light px-4" onclick="createGroup(document.getElementById('groupIdInput').value);">Set</button>
                     </div>
                     <div class="p-2 rounded-3 bg-opacity-100 border border-black border-4 border-opacity-25">
-                        <div id="currentStatusHome">Status: Senior</div>
+                        <div>Status: </div>
+                        <div id="currentStatusHome">Senior</div>
                         <div id="userList"></div>
                         <div class="input-group">
                             <select id="statusSelect" class="form-select overflow-auto text-white bg-dark">
