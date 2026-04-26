@@ -111,7 +111,7 @@ export class DrawingApp {
         this.groupPage.classList.replace('visible', 'invisible');
         this.drawPage.classList.replace('invisible', 'visible');
         document.getElementById("showGroupId").innerText = "Group: " + this.currentGroup;
-        document.getElementById("currentStatusMain").innerText = "Status: " + this.currentStatus;
+        document.getElementById("currentStatusMain").innerText = this.currentStatus;
         this.resizeCanvas();
         this.currentNameMain.innerText = `${this.currentName}`;
     }
@@ -236,11 +236,11 @@ export class DrawingApp {
 
             container.innerHTML = `
                 <div style="position:relative;  display:inline-block; width:100px; height:130px;">
-                    <canvas id="${groupId}GroupId" class="border border-black rounded-2" style="position:absolute; width:100px; height:100px; z-index:1"></canvas>
+                    <canvas id="${groupId}GroupId" class="border border-black rounded-2 bg-white" style="position:absolute; width:100px; height:100px; z-index:1"></canvas>
                     <canvas id="${groupId}previewGroupId" style="position:absolute; width:100px; height:100px; z-index:2"></canvas>
                     <div class="text-truncate" style="margin-top:105px">${groupId}</div>
                     <div class="btn-group btn-group-sm">
-                        <button class="btn btn-green py-0" onclick="joinFromPictureGroup('${groupId}')">Join</button>
+                        <button class="btn btn-outline-success py-0" onclick="joinFromPictureGroup('${groupId}')">Join</button>
                         <button class="btn btn-outline-danger py-0" onclick="deleteFromPictureGroup('${groupId}')">Delete</button>
                     </div>
                 </div>

@@ -6,8 +6,8 @@
     .invisible {
         display: none;
     }
-
-    #drawingPlace {
+    
+    .drawingPage {
         display: grid;
         grid-template-columns: 200px 1fr;
         height: 100vh;
@@ -23,17 +23,6 @@
         position: absolute;
         left: 0;
         top: 0;
-    }
-
-    .btn-green {
-        backface-visibility:hidden;
-        border-color:green;
-        color: green;
-    }
-
-    .btn-green:hover {
-        background-color: green; 
-        color: white;
     }
 
     .status-panel-box {
@@ -53,7 +42,7 @@
                     Werty Paint Application
                 </div>
                 <div class="position-absolute top-50 start-50 translate-middle rounded-4 p-2 col-sm-10 col-md-8 col-lg-6 col-xl-4 text-white border border-4 border-primary border-opacity-10 shadow-lg"
-                     style="background-color: var(--maincolor3);">
+                     style="background-color: var(--maincolor3); overflow: hidden">
                     <div class="status-panel-box">
                          <div id="chooseGroup" class="row ">
                             <div class="text-light px-4 col-3">
@@ -62,7 +51,7 @@
                             <div class="col-9">
                                 <div class="input-group">
                                     <input id="groupIdInput" class="form-control text-light bg-dark" type="number" min="0">
-                                    <button class="btn btn btn-outline-light px-4" onclick="createGroup(document.getElementById('groupIdInput').value);" style="width:130px;">Create</button>
+                                    <button class="btn btn-outline-light px-4" onclick="createGroup(document.getElementById('groupIdInput').value);" style="width:130px;">Create</button>
                                 </div>
                             </div>
                         </div>
@@ -101,24 +90,46 @@
         </div>
     </div>
 </div>
+
 <div id="drawPage" class="invisible">
-    <div id="drawingPlace">
-        <div>
-            <button onclick="setMode('line')">line</button>
-            <button onclick="setMode('square')">square</button>
-            <button onclick="setMode('pen')">pen</button>
-            <button onclick="setMode('circle')">circle</button>
-            <button onclick="setMode('text')">text</button>
-            <input id="textToDraw" placeholder="text to write" type="text">
-            <input type="color" id="colorInput" value=black>
-            <div id="showGroupId"></div>
-            <div id="currentStatusMain">Status: Senior</div>
-            <div>Name: </div>
-            <div id="currentNameMain"></div>
-            <button onclick="loadHome()">Go home</button>
-            <button onclick="saveCanvasAsJpeg();">Download</button>
+    <div id="drawingPlace" class="drawingPage">
+        <div class="gradient">
+            <div class="status-panel-box">
+                <div class="d-flex flex-wrap gap-1">
+                    <button class="btn btn-outline-light" onclick="setMode('line')">line</button>
+                    <button class="btn btn-outline-light" onclick="setMode('pen')">pen</button>
+                    <button class="btn btn-outline-light" onclick="setMode('text')">text</button>
+
+                    <button class="btn btn-outline-light" onclick="setMode('square')">square</button>
+                    <button class="btn btn-outline-light" onclick="setMode('circle')">circle</button>
+                </div>
+                <div class="input-group">
+                    <input id="textToDraw" type="text"
+                            class="bg-transparent text-white border-light text-center rounded-2"
+                            value="text" style="width:170px;">
+
+                    <input type="color" id="colorInput"
+                            class="form-control border-secondary px-1"
+                            value=black style="width:170px;">
+                </div>
+            </div>
+            <div class="status-panel-box">
+                <div class="text-white">
+                    Group Id: <span id="showGroupId" class="text-info">Senior</span>
+                </div>
+                <div class ="text-white">
+                    Status: <span id="currentStatusMain" class="text-info">Senior</span>
+                </div>          
+                <div class ="text-white">
+                    Name: <span id="currentNameMain" class="text-info">Senior</span>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-outline-info" onclick="loadHome()">Go home</button>
+                <button class="btn btn-outline-info" onclick="saveCanvasAsJpeg();">Download</button>
+            </div>
         </div>
-        <div>
+        <div >
             <div id="canvas-container">
                 <canvas id="canvas1" width="800" height="800"
                         style="position: absolute; left: 0; top: 0; z-index: 1; border: 1px solid black"></canvas>
