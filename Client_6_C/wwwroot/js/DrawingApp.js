@@ -218,7 +218,12 @@ export class DrawingApp {
         console.log("AllGroupIds", data);
 
         this.groupList.innerHTML = "";
-        this.groupList.className = "d-flex flex-wrap justify-content-center gap-3 rounded-3 border border-black border-4 border-opacity-25";
+        this.groupList.className = "";
+
+        if (data.length == 1)
+            return;
+
+        this.groupList.className = "d-flex flex-wrap justify-content-center gap-3 status-panel-box ";
 
         this.groupList.style.maxHeight = "200px";
         this.groupList.style.overflowY = "auto"; 
