@@ -1,8 +1,13 @@
+using Microsoft.AspNetCore.DataProtection;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews()
        .AddRazorRuntimeCompilation();
 builder.Services.AddSignalR();
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(@"/app/keys"));
 
 var app = builder.Build();
 
@@ -19,4 +24,4 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 
-app.Run("http://localhost:5111");
+app.Run("http://0.0.0.0:8080");

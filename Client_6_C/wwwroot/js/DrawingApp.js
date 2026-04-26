@@ -187,7 +187,6 @@ export class DrawingApp {
     }
 
     drawText(ctx, text, x, y) {
-        console.log(ctx, text, x, y);
         const fontFace = "Arial";
         ctx.font = `25px ${fontFace}`;
 
@@ -197,8 +196,6 @@ export class DrawingApp {
     }
 
     UpdateHome(data, clientConnectionId, groupId) {
-        console.log("UpdateHome", clientConnectionId, groupId);
-
         const thumbC = document.getElementById(`${groupId}GroupId`);
         const thumbP = document.getElementById(`${groupId}previewGroupId`);
         if (thumbC && thumbP) {
@@ -207,16 +204,12 @@ export class DrawingApp {
     }
 
     UpdateMain(message, clientConnectionId) {
-        console.log("UpdateMain", message, clientConnectionId);
-
         const ctx = document.getElementById('canvas1').getContext('2d');
         const prevCtx = document.getElementById('canvas2').getContext('2d');
         this.processDrawingTwoCanvas(ctx, prevCtx, message, clientConnectionId, this.currentGroup);
     }
 
     AllGroupIds(data) {
-        console.log("AllGroupIds", data);
-
         this.groupList.innerHTML = "";
         this.groupList.className = "";
 
@@ -262,8 +255,6 @@ export class DrawingApp {
     }
 
     AllUsers(users) {
-        console.log("AllUsers", users);
-
         this.userList.innerHTML = "";
 
         this.userList.className = "list-group";
@@ -292,8 +283,6 @@ export class DrawingApp {
     }
 
     ReceiveHistory(clasterData, groupId) {
-        console.log("ReceiveHistory",clasterData, groupId);
-
         if (!clasterData) return;
         clasterData.forEach(data => {
             if (this.currentGroup === groupId && this.drawPage.classList.contains('visible')) {
@@ -306,24 +295,18 @@ export class DrawingApp {
     }
 
     DeleteMainGroup() {
-        console.log("DeleteMainGroup");
-
         this.currentGroup = "Home";
         this.network.joinGroup("Home");
         this.loadHomePage();
     }
 
     SetStatus(status) {
-        console.log("SetStatus",status);
-
         this.currentStatusHome.innerText = `${status}`;
         this.currentStatusMain.innerText = `${status}`;
         this.currentStatus = status;
     }
 
     SetName(res) {
-        console.log("SetName", res);
-
         if (res) {
             this.currentNameMain.innerText = `${this.currentNameHome.value}`;
             this.currentNameHomeLabel.innerText = `${this.currentNameHome.value}`;

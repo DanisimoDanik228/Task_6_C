@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using System.Drawing;
@@ -16,6 +17,9 @@ namespace Server_6_C
 
             builder.Services.AddSignalR();
 
+            builder.Services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(@"/app/keys"));
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", policy =>
@@ -32,7 +36,7 @@ namespace Server_6_C
             app.UseCors("CorsPolicy");
             app.MapHub<DrawHub>("/hub");
 
-            app.Run("http://localhost:5123");
+            app.Run("http://0.0.0.0:8080");
         }
     }
 
@@ -72,11 +76,6 @@ namespace Server_6_C
             }
 
             await Clients.Group("Home").SendAsync("AllUsers", _permintationManager.GetAllUsers());
-        }
-
-        public async Task RemoveUser()
-        {
-            //await OnDisconnectedAsync(null);
         }
 
         public async Task AddUser()
@@ -151,9 +150,6 @@ namespace Server_6_C
             {
                 await Clients.Group("Home").SendAsync("AllUsers", _permintationManager.GetAllUsers());
             }
-
-            Console.WriteLine(_groupMembers);
-            Console.WriteLine(_permintationManager);
         }
 
         public async Task LeaveGroup(string groupId)
