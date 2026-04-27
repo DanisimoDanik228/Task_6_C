@@ -138,7 +138,7 @@
 <script type="module">
     import { DrawingApp } from '/js/DrawingApp.js';
 
-    const app = new DrawingApp();
+    const app = new DrawingApp(@Json.Serialize(ViewData["SERVER_ADRESS"]));
     app.init();
 
 </script>

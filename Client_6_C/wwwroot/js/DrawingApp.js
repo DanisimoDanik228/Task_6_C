@@ -2,7 +2,9 @@
 import { DrawingEvent } from './DrawingEvent.js'
 
 export class DrawingApp {
-    constructor() {
+    constructor(
+        SERVER_ADRESS
+    ) {
         this.currentGroup = "Home";
         this.currentStatus = "Senior";
         this.currentMode = "pen";
@@ -15,6 +17,7 @@ export class DrawingApp {
         this.textToDraw = document.getElementById('textToDraw');
 
         this.network = new NetworkManager(
+            SERVER_ADRESS,
             this.AllGroupIds.bind(this),
             this.UpdateHome.bind(this),
             this.UpdateMain.bind(this),

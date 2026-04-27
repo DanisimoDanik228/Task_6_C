@@ -13,6 +13,8 @@ namespace Server_6_C
     {
         public static void Main(string[] args)
         {
+            DotNetEnv.Env.Load();
+
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddSignalR();
@@ -24,7 +26,7 @@ namespace Server_6_C
             {
                 options.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.WithOrigins("https://trainee.werty.uk")
+                    policy.WithOrigins(Environment.GetEnvironmentVariable("CLIENT_ADRESS"))
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials(); 

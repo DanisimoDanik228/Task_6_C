@@ -1,14 +1,20 @@
 services:
   client_6_c:
-    image: werty2648/traineetask6_client:v1
+    build: 
+        context: .
+        dockerfile: Client_6_C/Dockerfile
+    user: root
     ports:
-        - "5111:8080"      
+      - "5111:8080"      
     volumes:
       - ./dp-keys/server:/app/keys 
 
   server_6_c:
-    image: werty2648/traineetask6_server:v1
+    build: 
+        context: .
+        dockerfile: Server_6_C/Dockerfile
+    user: root
     ports:
-    - "5123:8080"
+    - "5123:8080"    
     volumes:
       - ./dp-keys/server:/app/keys 

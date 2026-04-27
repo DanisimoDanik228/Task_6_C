@@ -10,6 +10,8 @@ namespace Task_6_C.Controllers
     {
         public IActionResult Index()
         {
+            ViewData["SERVER_ADRESS"] = Environment.GetEnvironmentVariable("SERVER_ADRESS");
+
             return View();
         }
     }

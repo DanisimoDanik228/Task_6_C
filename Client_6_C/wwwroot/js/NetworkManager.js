@@ -2,6 +2,7 @@
 
 export class NetworkManager {
     constructor(
+        SERVER_ADRESS,
         AllGroupIds,
         UpdateHome,
         UpdateMain,
@@ -11,7 +12,7 @@ export class NetworkManager {
         AllUsers,
         SetName) {
         this.connection = new signalR.HubConnectionBuilder()
-            .withUrl("https://trainee2.werty.uk/hub")
+            .withUrl(`${SERVER_ADRESS}/hub`)
             .build();
 
         this.connection.on("UpdateHome", UpdateHome);

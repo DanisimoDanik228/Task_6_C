@@ -27,4 +27,5 @@ RUN dotnet publish "./Server_6_C.csproj" -c $BUILD_CONFIGURATION -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY .env .
 ENTRYPOINT ["dotnet", "Server_6_C.dll"]

@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.DataProtection;
 
+DotNetEnv.Env.Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews()
@@ -12,7 +14,8 @@ builder.Services.AddDataProtection()
 var app = builder.Build();
 
 app.UseHttpsRedirection();
-app.UseRouting();
+app.UseRouting(); 
+app.UseStaticFiles();
 
 app.UseAuthorization();
 
