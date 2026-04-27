@@ -24,7 +24,7 @@ namespace Server_6_C
             {
                 options.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.WithOrigins("http://localhost:5111") 
+                    policy.WithOrigins("https://trainee.werty.uk")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials(); 
@@ -33,7 +33,10 @@ namespace Server_6_C
 
             var app = builder.Build();
 
+            app.UseRouting();
+
             app.UseCors("CorsPolicy");
+
             app.MapHub<DrawHub>("/hub");
 
             app.Run("http://0.0.0.0:8080");

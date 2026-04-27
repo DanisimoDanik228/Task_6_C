@@ -11,7 +11,7 @@ export class NetworkManager {
         AllUsers,
         SetName) {
         this.connection = new signalR.HubConnectionBuilder()
-            .withUrl("http://localhost:5123/hub")
+            .withUrl("https://trainee2.werty.uk/hub")
             .build();
 
         this.connection.on("UpdateHome", UpdateHome);
